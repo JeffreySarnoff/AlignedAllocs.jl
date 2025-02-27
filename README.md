@@ -3,8 +3,11 @@
 #### Copyright 2025 by Jeffrey Sarnoff. Relased under the MIT License.
 ----
 
-- There is one exported function: `aaloc(T, nitems, alignment)`.
-- use the result as Vector{T}(undef, n) _and isbitstype(T)_
+- There are two exported functions:
+    - `vec = amaloc(T, nitems, alignment)`
+      * use vec as Vector{T}(undef, n) _and isbitstype(T)_
+    - `vec = acaloc(T, nitems, alignment)`
+      * use vec as zeros(T, nitems) _and isbitstype(T)_
 
 ```
 T = Float32
