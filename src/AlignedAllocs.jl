@@ -1,6 +1,6 @@
 mmodule AlignedAllocs
 
-export aaloc
+export aalloc
 
 # aaloc() error codes
 const ENOMEM = Cint(12)  # Out of memory error code
