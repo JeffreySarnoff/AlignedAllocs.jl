@@ -22,6 +22,21 @@ Allocate memory for a densevector vec = Vector{T}(undef, nitems)
 `amaloc` works on Unixes (Linux, Apple, Bsd), Windows
 """ amalloc
 
+@inline function amalloc(::Type{T}, nitems::Integer, alignment::Integer) where T
+    @static Sys.iswindows() ? amalloc_windows(T, nitems, alignment) : amalloc_posix(T, nitems, alignment)
+end
+
+function amalloc_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
+    vec = amalloc_windows(T, nitems, alignment)
+    vec .= zero(T)
+    vec
+end
+        
+function amalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
+    vec = amalloc_posix(T, nitems, alignment)
+    vec .= zero(T)
+    vec
+end
 
 """
     acalloc(::Type{T}, nitems::Integer, alignto::Integer) where T
@@ -44,13 +59,13 @@ Allocate memory for a densevector vec = zeros(T, nitems)
 end
 
 function acalloc_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
-    vec = aalloc_windows(T, nitems, alignment)
+    vec = amalloc_windows(T, nitems, alignment)
     vec .= zero(T)
     vec
 end
         
 function acalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
-    vec = aalloc_posix(T, nitems, alignment)
+    vec = amalloc_posix(T, nitems, alignment)
     vec .= zero(T)
     vec
 end
