@@ -1,7 +1,8 @@
 # AlignedAllocs.jl
-### cross-platform allocation of aligned memory 
-###   use as Vector{T}(undef, n) where isbitstype(T)
+## cross-platform allocation of aligned memory 
+##   use as Vector{T}(undef, n) where isbitstype(T)
 #### Copyright 2025 by Jeffrey Sarnoff. Relased under the MIT License.
+----
 
 There is one exported function: `aaloc(T, nitems, alignment)`.
 ```
