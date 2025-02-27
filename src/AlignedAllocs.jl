@@ -1,15 +1,15 @@
 mmodule AlignedAllocs
 
-export aalloc
+export amalloc, acalloc
 
 # aaloc() error codes
 const ENOMEM = Cint(12)  # Out of memory error code
 const EINVAL = Cint(22)  # Invalid argument error code
 
 """
-    aalloc(::Type{T}, nitems::Integer, alignto::Integer) where T
+    amalloc(::Type{T}, nitems::Integer, alignto::Integer) where T
 
-__aligned memory allocation__ with finalizer
+__aligned uninitialized memory allocation__ with finalizer
 
 Allocate memory for a densevector vec = Vector{T}(undef, nitems)
 - vec starts at a memory address that is a multiple of `alignment` bits
@@ -19,36 +19,51 @@ Allocate memory for a densevector vec = Vector{T}(undef, nitems)
 - alignment is bitcount, (alignment ÷ 8 is the alignment in bytes)
 - alignment must be a power of 2 and must be >= 16
 
-`aaloc` works on Unixes (Linux, Apple, Bsd), Windows
-""" aalloc
+`amaloc` works on Unixes (Linux, Apple, Bsd), Windows
+""" amalloc
 
 
-@inline function azalloc(::Type{T}, nitems::Integer, alignment::Integer) where T
-    @static Sys.iswindows() ? azalloc_windows(T, nitems, alignment) : azalloc_posix(T, nitems, alignment)
+"""
+    acalloc(::Type{T}, nitems::Integer, alignto::Integer) where T
+
+__aligned zeroed memory allocation__ with finalizer
+
+Allocate memory for a densevector vec = zeros(T, nitems)
+- vec starts at a memory address that is a multiple of `alignment` bits
+- Int(pointer(vec)) % alignment == 0
+
+- alignment constrains the memory address of start of the vector 
+- alignment is bitcount, (alignment ÷ 8 is the alignment in bytes)
+- alignment must be a power of 2 and must be >= 16
+
+`acaloc` works on Unixes (Linux, Apple, Bsd), Windows
+""" acalloc
+
+@inline function acalloc(::Type{T}, nitems::Integer, alignment::Integer) where T
+    @static Sys.iswindows() ? acalloc_windows(T, nitems, alignment) : acalloc_posix(T, nitems, alignment)
 end
 
-function azalloc_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
+function acalloc_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
     vec = aalloc_windows(T, nitems, alignment)
     vec .= zero(T)
     vec
 end
         
-function azalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
+function acalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
     vec = aalloc_posix(T, nitems, alignment)
     vec .= zero(T)
     vec
 end
 
-
 # =================================================================================
 # =================================================================================
 # =================================================================================
 
-@inline function aalloc(T::Type, nitems::Integer, alignment::Integer)
-    @static Sys.iswindows() ? aalloc_windows(T, nitems, alignment) : aalloc_posix(T, nitems, alignment)
+@inline function amalloc(T::Type, nitems::Integer, alignment::Integer)
+    @static Sys.iswindows() ? amalloc_windows(T, nitems, alignment) : amalloc_posix(T, nitems, alignment)
 end
 
-function aalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
+function amalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
     (ispow2(alignment) && alignment >= 16) || 
         throw(ArgumentError("Alignment ($alignment) must be 2^p where p >= 4"))
 
@@ -83,7 +98,7 @@ function aalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
     return vec
 end
 
-function aalloc_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
+function amalloc_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
     (ispow2(alignment) && alignment >= 16) || 
         throw(ArgumentError("Alignment ($alignment) must be 2^p where p >= 4"))
     
