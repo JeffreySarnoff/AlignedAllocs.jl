@@ -28,9 +28,21 @@ Int(pointer(myvec)) % alignment == 0
 ```
 
 ```
-    aalloc(::Type{T}, nitems::Integer, alignto::Integer) where T
+    amalloc(::Type{T}, nitems::Integer, alignto::Integer) where T
 
-__aligned memory allocation__ with finalizer
+__aligned uninitialized memory allocation__ with finalizer
+
+Allocate memory for a densevector vec = Vector{T}(undef, nitems)
+- vec starts at a memory address that is aligned to `alignto` bits
+- Int(pointer(vec)) % alignto == 0
+
+works on Unixes (Linux, Apple, Bsd), Windows
+```
+
+```
+    acalloc(::Type{T}, nitems::Integer, alignto::Integer) where T
+
+__aligned zeroed memory allocation__ with finalizer
 
 Allocate memory for a densevector vec = Vector{T}(undef, nitems)
 - vec starts at a memory address that is aligned to `alignto` bits
