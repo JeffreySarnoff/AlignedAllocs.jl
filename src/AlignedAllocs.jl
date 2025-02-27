@@ -29,13 +29,13 @@ end
 
 function azalloc_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
     vec = aalloc_windows(T, nitems, alignment)
-    vec[:] = zero(T)
+    vec .= zero(T)
     vec
 end
         
 function azalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
     vec = aalloc_posix(T, nitems, alignment)
-    vec[:] = zero(T)
+    vec .= zero(T)
     vec
 end
 
@@ -43,7 +43,6 @@ end
 # =================================================================================
 # =================================================================================
 # =================================================================================
-
 
 @inline function aalloc(T::Type, nitems::Integer, alignment::Integer)
     @static Sys.iswindows() ? aalloc_windows(T, nitems, alignment) : aalloc_posix(T, nitems, alignment)
@@ -111,20 +110,6 @@ function aalloc_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
 end
 
 # error handling
-
-function confirm_alignment(ptr::Ptr, alignment::Integer)
-    if UInt(ptr) % alignment != 0
-        if Sys.iswindows()
-            ccall((:_aligned_free, "msvcrt"), Cvoid, (Ptr{Cvoid},), ptr)
-        else
-            ccall((:free, "libc"), Cvoid, (Ptr{Cvoid},), ptr)
-        end
-
-        errmsg = "aligned memory allocation failed: returned address $(UInt(ptr)) is not aligned to $(alignment) bytes"
-        throw(ErrorException(errmsg))
-    end
-end
-
 
 function confirm_alignment(ptr::Ptr, alignment::Integer)
     if UInt(ptr) % alignment != 0
