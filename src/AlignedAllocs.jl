@@ -22,19 +22,49 @@ Allocate memory for a densevector vec = Vector{T}(undef, nitems)
 `aaloc` works on Unixes (Linux, Apple, Bsd), Windows
 """ aalloc
 
-@inline function aalloc(::Type{T}, nitems::Integer, alignment::Integer) where T
+
+@inline function azalloc(::Type{T}, nitems::Integer, alignment::Integer) where T
+    @static Sys.iswindows() ? azalloc_windows(T, nitems, alignment) : azalloc_posix(T, nitems, alignment)
+end
+
+function azalloc_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
+    vec = aalloc_windows(T, nitems, alignment)
+    vec[:] = zero(T)
+    vec
+end
+        
+function azalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
+    vec = aalloc_posix(T, nitems, alignment)
+    vec[:] = zero(T)
+    vec
+end
+
+
+# =================================================================================
+# =================================================================================
+# =================================================================================
+
+
+@inline function aalloc(T::Type, nitems::Integer, alignment::Integer)
     @static Sys.iswindows() ? aalloc_windows(T, nitems, alignment) : aalloc_posix(T, nitems, alignment)
 end
 
 function aalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
     (ispow2(alignment) && alignment >= 16) || 
         throw(ArgumentError("Alignment ($alignment) must be 2^p where p >= 4"))
-    
-    item_bytes = sizeof(T)    
-    total_bytes = Base.checked_mul(nitems, item_bytes)
+
+    bytes_per_item = sizeof(T)
+    total_bytes = Base.checked_mul(nitems, bytes_per_item)
         
     local ptr::Ptr{T} = Ptr{T}()
+
+     memref = Ref{Ptr{Cvoid}}(C_NULL)
+     ret = ccall( (:posix_memalign, "libc"), Cint,
+                  (Ref{Ptr{Cvoid}}, Csize_t, Csize_t),
+                  memref, alignment, total_bytes)
+    !iszero(ret) && throw(OutOfMemoryError())
     
+    ptr = memref[]
     memref = Ref{Ptr{T}}()
     err = ccall((:posix_memalign, "libc"), Cint,
                 (Ref{Ptr{T}}, Csize_t, Csize_t),
@@ -95,7 +125,23 @@ function confirm_alignment(ptr::Ptr, alignment::Integer)
     end
 end
 
-function aaloc_error(err)
+
+function confirm_alignment(ptr::Ptr, alignment::Integer)
+    if UInt(ptr) % alignment != 0
+        if Sys.iswindows()
+            ccall((:_aligned_free, "msvcrt"), Cvoid, (Ptr{Cvoid},), ptr)
+        else
+            ccall((:free, "libc"), Cvoid, (Ptr{Cvoid},), ptr)
+        end
+
+        errmsg = "aligned memory allocation failed: returned address $(UInt(ptr)) is not aligned to $(alignment) bytes"
+        throw(ErrorException(errmsg))
+    end
+end
+
+function aalloc_error(err)
+    iszero(err) && return nothing
+    
     if err == EINVAL
         throw(ArgumentError("Invalid alignment: must be power of 2 and multiple of $ptr_size"))
     else
