@@ -1,4 +1,4 @@
-module AlignedAllocs
+mmodule AlignedAllocs
 
 export aaloc
 
@@ -12,10 +12,14 @@ const EINVAL = Cint(22)  # Invalid argument error code
 __aligned memory allocation__ with finalizer
 
 Allocate memory for a densevector vec = Vector{T}(undef, nitems)
-- vec starts at a memory address that is aligned to `alignto` bits
-- Int(pointer(vec)) % alignto == 0
+- vec starts at a memory address that is a multiple of `alignment` bits
+- Int(pointer(vec)) % alignment == 0
 
-works on Unixes (Linux, Apple, Bsd), Windows
+- alignment constrains the memory address of start of the vector 
+- alignment is bitcount, (alignment ÷ 8 is the alignment in bytes)
+- alignment must be a power of 2 and must be >= 16
+
+`aaloc` works on Unixes (Linux, Apple, Bsd), Windows
 """ aalloc
 
 @inline function aalloc(::Type{T}, nitems::Integer, alignment::Integer) where T
@@ -99,4 +103,5 @@ function aaloc_error(err)
     end
 end
 
-end  # AlignedAllocs
+end  # AlignedAlloc
+
