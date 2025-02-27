@@ -23,7 +23,7 @@ Allocate memory for a densevector vec = Vector{T}(undef, nitems)
 """ aalloc
 
 @inline function aalloc(::Type{T}, nitems::Integer, alignment::Integer) where T
-    @static Sys.iswindows() ? aalloc_windows(T, nitems, alignment) : aalloc_posix(T, nitems, alignment
+    @static Sys.iswindows() ? aalloc_windows(T, nitems, alignment) : aalloc_posix(T, nitems, alignment)
 end
 
 function aalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
