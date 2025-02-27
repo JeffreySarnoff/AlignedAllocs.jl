@@ -20,7 +20,7 @@ myvec ,= zero(Float32)  # make it safer to use
 Int(pointer(myvec)) % alignment == 0
 ```
 
-"""
+```
     aalloc(::Type{T}, nitems::Integer, alignto::Integer) where T
 
 __aligned memory allocation__ with finalizer
@@ -30,4 +30,5 @@ Allocate memory for a densevector vec = Vector{T}(undef, nitems)
 - Int(pointer(vec)) % alignto == 0
 
 works on Unixes (Linux, Apple, Bsd), Windows
-""" aalloc
+```
+
