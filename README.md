@@ -3,9 +3,8 @@
 #### Copyright 2025 by Jeffrey Sarnoff. Relased under the MIT License.
 ----
 
-### There is one exported function: `aaloc(T, nitems, alignment)`.
-
-### use as Vector{T}(undef, n) where isbitstype(T)
+- There is one exported function: `aaloc(T, nitems, alignment)`.
+- use the result as Vector{T}(undef, n) _and isbitstype(T)_
 
 ```
 T = Float32
