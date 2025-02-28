@@ -6,7 +6,7 @@
 - There are two exported functions:
     - `vec = memalign(T, nitems, alignment)`
       * use vec as Vector{T}(undef, n) _and isbitstype(T)_
-    - `vec = alignzeros(T, nitems, alignment)`
+    - `vec = clralign(T, nitems, alignment)`
       * use vec as zeros(T, nitems) _and isbitstype(T)_
 
 ```
