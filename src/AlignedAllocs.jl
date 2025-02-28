@@ -22,7 +22,7 @@ Allocate memory for a densevector vec = Vector{T}(undef, nitems)
 end
 
 """
-    amalloc(::Type{T}, nitems::Integer, alignto::Integer) where T
+    memalign(::Type{T}, nitems::Integer, alignto::Integer) where T
 
 __aligned uninitialized memory allocation__ with finalizer
 
@@ -37,17 +37,17 @@ Allocate memory for a densevector vec = Vector{T}(undef, nitems)
 `amaloc` works on Unixes (Linux, Apple, Bsd), Windows
 """ amalloc
 
-@inline function amalloc(::Type{T}, nitems::Integer, alignment::Integer) where T
-    @static Sys.iswindows() ? amalloc_windows(T, nitems, alignment) : amalloc_posix(T, nitems, alignment)
+@inline function memalign(::Type{T}, nitems::Integer, alignment::Integer) where T
+    @static Sys.iswindows() ? memalign_windows(T, nitems, alignment) : memalign_posix(T, nitems, alignment)
 end
 
-function amalloc_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
+function memalign_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
     vec = amalloc_windows(T, nitems, alignment)
     vec .= zero(T)
     vec
 end
         
-function amalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
+function memalign_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
     vec = amalloc_posix(T, nitems, alignment)
     vec .= zero(T)
     vec
