@@ -1,3 +1,7 @@
+#=
+   most of this comes from extended refinement with chatgpt
+=#
+
 module CachePrefetch
 
 export prefetch_address, prefetch_specific_cache_line, align_to_cache_line, 
