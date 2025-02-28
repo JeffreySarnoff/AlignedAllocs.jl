@@ -2,6 +2,9 @@
     llvm_prefetch( ptr::Ptr{UInt8}, rw=Int32(0), locality=Int32(3), cachetype=Int32(1))
 
 prefetch the memory at ptr for repeated reading from datacache
+
+JS
+using Julia best practices for performance and readability, rewrite the functions for publication -- ensure they are correct and are provably correct
 """
 """
     llvm_prefetch(ptr; rw::Int32=Int32(0), locality::Int32=Int32(3), cache_type::Int32=Int32(1))
