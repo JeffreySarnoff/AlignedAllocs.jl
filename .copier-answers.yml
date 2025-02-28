@@ -1,0 +1,15 @@
+# Changes here will be overwritten by Copier
+AnswerStrategy: recommended
+Authors: Jeffrey Sarnoff <jeffrey.sarnoff@gmail.com>
+CodeOfConductContact: jeffrey.sarnoff@gmail.com
+ConfigIndentation: 2
+JuliaIndentation: 4
+JuliaMinVersion: '1.11'
+License: MIT
+LicenseCopyrightHolders: Jeffrey Sarnoff
+MarkdownIndentation: 2
+PackageName: AlignedAllocs
+PackageOwner: JeffreySarnoff
+PackageUUID: 6ac60441-711f-43f0-8178-7f71f0888134
+_commit: v0.15.0
+_src_path: https://github.com/JuliaBesties/BestieTemplate.jl

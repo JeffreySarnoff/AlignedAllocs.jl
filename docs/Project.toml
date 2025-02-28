@@ -1,0 +1,11 @@
+# Don't forget to run
+#
+#     pkg> dev ..
+#
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+LiveServer = "16fef848-5104-11e9-1b77-fb7a48bbb589"
+AlignedAllocs = "6ac60441-711f-43f0-8178-7f71f0888134"
+
+[compat]
+Documenter = "1"
