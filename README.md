@@ -1,5 +1,5 @@
 # AlignedAllocs.jl
-## cross-platform allocation of aligned memory 
+## lightweight cross-platform allocation of aligned memory 
 #### Copyright 2025 by Jeffrey Sarnoff. Relased under the MIT License.
 ----
 
@@ -8,7 +8,7 @@
       * use vec as Vector{T}(undef, n) _and isbitstype(T)_
     - `vec = clralign(T, nitems, alignment)`
       * use vec as zeros(T, nitems) _and isbitstype(T)_
-
+----
 ```
 T = Float32
 nitmes = 1024
@@ -50,4 +50,9 @@ Allocate memory for a densevector vec = Vector{T}(undef, nitems)
 
 works on Unixes (Linux, Apple, Bsd), Windows
 ```
+
+### also consider
+[ArrayAllocators.jl](https://github.com/mkitti/ArrayAllocators.jl) - a much more developed approach to aligned arrays
+  
+
 
