@@ -53,7 +53,8 @@ unsafe_wrap(Array, ptr, dims; own = false, reinterpret = false)
         The returned array's size is adjusted based on type size differences
         Particularly useful for SIMD operations where specific memory layouts can improve performance
         
-        This parameter is crucial for zero-copy interoperation with external libraries and efficient memory representation transformations.
+        This parameter is crucial for zero-copy interoperation with external libraries
+        and efficient memory representation transformations.
 ```
 
 ```
