@@ -52,12 +52,11 @@ function llvm_prefetch(ptr::Ptr{T};
                       locality::Int32=Int32(3), 
                       cache_type::Int32=Int32(1)) where T
     # Validate input parameters to ensure correctness
-    @assert rw in (Int32(0), Int32(1)) "rw must be 0 (read) or 1 (write)"
-    @assert locality in (Int32(0), Int32(1), Int32(2), Int32(3)) "locality must be between 0 and 3"
-    @assert cache_type in (Int32(0), Int32(1)) "cache_type must be 0 (instruction) or 1 (data)"
+    ((0 <= rw <= 1) && (0 <= locality <= 3) && (0 <= cache_type <= 1)) ||
+        throw(DomainError("rw<0:1> = $rw, locality<0:3> = $locality, cache_type<0:1> = $cache_type")
     
     # LLVM IR for the prefetch intrinsic
-    # Convert the pointer to i8* as required by LLVM prefetch intrinsic
+    # Convert the pointer to Int8* as required by LLVM prefetch intrinsic
     ir = """
         %ptr = inttoptr i64 %0 to i8*
         call void @llvm.prefetch(i8* %ptr, i32 %1, i32 %2, i32 %3)
@@ -65,7 +64,6 @@ function llvm_prefetch(ptr::Ptr{T};
         
         declare void @llvm.prefetch(i8*, i32, i32, i32)
     """
-    
     # Call the LLVM intrinsic using llvmcall
     # This is the most direct and efficient way to access LLVM intrinsics
     Base.llvmcall(ir, Nothing, Tuple{UInt64, Int32, Int32, Int32}, 
