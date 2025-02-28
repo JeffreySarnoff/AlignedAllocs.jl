@@ -23,7 +23,8 @@ vec = memalign(element_type, element_count, bytesofalignment)
 vec behaves as a DenseVector with enhanced cache-line performance
 vec is unsafe_wrapped contiguous memory provided by LLVM intrinsic or C/C++ library functions
 ```
-"""
+
+```
 unsafe_wrap(Array, ptr, dims; own = false, reinterpret = false)
     Array: The array type to create (typically Array)
     ptr: A pointer to the existing memory to wrap
@@ -53,7 +54,8 @@ unsafe_wrap(Array, ptr, dims; own = false, reinterpret = false)
         Particularly useful for SIMD operations where specific memory layouts can improve performance
         
         This parameter is crucial for zero-copy interoperation with external libraries and efficient memory representation transformations.
-"""
+```
+
 ```
 EXAMPLES
     # Creating an array from C-allocated memory
