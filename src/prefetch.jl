@@ -1,4 +1,47 @@
 """
+    llvm_prefetch(ptr::Ptr{T}; rw=0, locality=3, cache_type=1)
+
+Prefetches the memory pointed to by `ptr` using the LLVM intrinsic `llvm.prefetch`.
+
+# Arguments
+- `ptr::Ptr{T}`: A pointer to the memory to prefetch.
+- `rw::Int32`: Indicates read (0) or write (1) prefetch (default is 0).
+- `locality::Int32`: Locality hint (0 for high locality, 3 for low locality; default is 3).
+- `cache_type::Int32`: Cache type hint (0 for data cache, 1 for instruction cache; default is 1).
+
+# Raises
+- `DomainError`: If any of the parameters are out of their allowed ranges:
+  - `rw` must be 0 or 1.
+  - `locality` must be between 0 and 3.
+  - `cache_type` must be 0 or 1.
+"""
+function llvm_prefetch(ptr::Ptr{T}; rw::Int32 = 0, locality::Int32 = 3, cache_type::Int32 = 1) where T
+    # Validate input parameters
+    if !(0 <= rw <= 1 && 0 <= locality <= 3 && 0 <= cache_type <= 1)
+        throw(DomainError("Invalid parameters: rw (0:1) = $rw, locality (0:3) = $locality, cache_type (0:1) = $cache_type"))
+    end
+
+    # Determine the integer type corresponding to the pointer size.
+    # Using `UInt` here ensures compatibility with both 32- and 64-bit systems.
+    const ptr_bitwidth = Sys.WORD_SIZE
+    const llvm_ptr_ty = "i$ptr_bitwidth"
+
+    # Create the LLVM IR string with the appropriate pointer type.
+    # The intrinsic expects an i8* pointer; hence we cast our pointer accordingly.
+    ir = """
+        %ptr = inttoptr $llvm_ptr_ty %0 to i8*
+        call void @llvm.prefetch(i8* %ptr, i32 %1, i32 %2, i32 %3)
+        ret void
+
+        declare void @llvm.prefetch(i8*, i32, i32, i32)
+    """
+    # Call the LLVM intrinsic via llvmcall.
+    Base.llvmcall(ir, Nothing, Tuple{UInt, Int32, Int32, Int32}, UInt(ptr), rw, locality, cache_type)
+    return nothing
+end
+
+
+"""
     llvm_prefetch(ptr; rw::Int32=Int32(0), locality::Int32=Int32(3), cache_type::Int32=Int32(1))
 
 Efficient wrapper for LLVM's prefetch intrinsic that hints to the CPU to preload data into cache.
