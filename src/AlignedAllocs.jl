@@ -1,23 +1,23 @@
 mmodule AlignedAllocs
 
-export memalign, memalign4, memalign8
+export memaligned
 
 # aaloc() error codes
 const ENOMEM = Cint(12)  # Out of memory error code
 const EINVAL = Cint(22)  # Invalid argument error code
 
 """
-    memalign64(::Type{T}, nitems::Integer) where T
+    memalign(::Type{T}, nitems::Integer) where T
 
-__8 byte aligned uninitialized memory allocation__ with finalizer
+__(by default, 8 byte) aligned uninitialized memory allocation__
 
 Allocate memory for a densevector vec = Vector{T}(undef, nitems)
 - vec starts at a memory address that is a multiple of 8 bytes
 
-`memalign64` works on Unixes (Linux, Apple, Bsd), Windows
-""" memalign64
+`memalign` works on Unixes (Linux, Apple, Bsd), Windows
+""" memalign
 
-@inline funciton memalign64(::Type{T}, nitems::Integer) where T
+@inline funciton memalign(::Type{T}, nitems::Integer) where T
     @static Sys.iswindows() ? amalloc_windows(T, nitems, 64) : amalloc_posix(T, nitems, 64)
 end
 
@@ -52,6 +52,14 @@ function memalign_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
     vec .= zero(T)
     vec
 end
+
+
+
+
+
+
+
+
 
 """
     acalloc(::Type{T}, nitems::Integer, alignto::Integer) where T
