@@ -1,3 +1,8 @@
+# Determine the integer type corresponding to the pointer size.
+# Using `UInt` here ensures compatibility with both 32- and 64-bit systems.
+const ptr_bitwidth = Sys.WORD_SIZE
+const llvm_ptr_ty = "i$ptr_bitwidth"
+
 """
     llvm_prefetch(ptr::Ptr{T}; rw=0, locality=3, cache_type=1)
 
@@ -20,11 +25,6 @@ function llvm_prefetch(ptr::Ptr{T}; rw::Int32 = 0, locality::Int32 = 3, cache_ty
     if !(0 <= rw <= 1 && 0 <= locality <= 3 && 0 <= cache_type <= 1)
         throw(DomainError("Invalid parameters: rw (0:1) = $rw, locality (0:3) = $locality, cache_type (0:1) = $cache_type"))
     end
-
-    # Determine the integer type corresponding to the pointer size.
-    # Using `UInt` here ensures compatibility with both 32- and 64-bit systems.
-    const ptr_bitwidth = Sys.WORD_SIZE
-    const llvm_ptr_ty = "i$ptr_bitwidth"
 
     # Create the LLVM IR string with the appropriate pointer type.
     # The intrinsic expects an i8* pointer; hence we cast our pointer accordingly.
