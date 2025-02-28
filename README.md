@@ -4,6 +4,10 @@
 ----
 
 ### exports
+
+- `memalign(item_type, item_count, bytes_of_alignment)`
+- `memalign_zeroed(item_type, item_count, bytes_of_alignment)`
+  
 ```
 #  vec::DenseVector = memalign(item_type, item_count, nbyte_alignment = 64)
 #                              bitstype ,    > 0    ,   2^p where p > 2
