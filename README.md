@@ -5,10 +5,11 @@
 
 ### exports
 
-- `memalign(item_type, item_count, bytes_of_alignment; clear=false)`
+- `memalign(item_type, item_count, bytes_of_alignment; zeros=false)`
+
 ```
-memalign_zeroed(item_type, item_count, bytes_of_alignment) =
-    memalign(item_type, item_count, bytes_of_alignment; clear=true)
+memalign_zeros(item_type, item_count, bytes_of_alignment) =
+    memalign(item_type, item_count, bytes_of_alignment; zeros=true)
 ```
   
 ```
