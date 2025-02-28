@@ -4,9 +4,9 @@
 ----
 
 - There are two exported functions:
-    - `vec = amaloc(T, nitems, alignment)`
+    - `vec = memalign(T, nitems, alignment)`
       * use vec as Vector{T}(undef, n) _and isbitstype(T)_
-    - `vec = acaloc(T, nitems, alignment)`
+    - `vec = alignzeros(T, nitems, alignment)`
       * use vec as zeros(T, nitems) _and isbitstype(T)_
 
 ```
