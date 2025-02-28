@@ -9,33 +9,33 @@ const EINVAL = Cint(22)  # Invalid argument error code
 """
     memalign(::Type{T}, nitems::Integer) where T
 
-__(by default, 8 byte) aligned uninitialized memory allocation__
+__(by default, 64 byte) aligned uninitialized memory allocation__
 
 Allocate memory for a densevector vec = Vector{T}(undef, nitems)
-- vec starts at a memory address that is a multiple of 8 bytes
+- vec starts at a memory address that is a multiple of 64 bytes
 
 `memalign` works on Unixes (Linux, Apple, Bsd), Windows
 """ memalign
 
-@inline funciton memalign(::Type{T}, nitems::Integer) where T
-    @static Sys.iswindows() ? amalloc_windows(T, nitems, 64) : amalloc_posix(T, nitems, 64)
+@inline function memalign(::Type{T}, nitems::Integer) where T
+    @static Sys.iswindows() ? memalign_windows(T, nitems, 64) : memalign_posix(T, nitems, 64)
 end
 
 """
-    memalign(::Type{T}, nitems::Integer, alignto::Integer) where T
+    memalign(::Type{T}, nitems::Integer, alignbytes::Integer) where T
 
-__aligned uninitialized memory allocation__ with finalizer
+__aligned uninitialized memory allocation__
 
 Allocate memory for a densevector vec = Vector{T}(undef, nitems)
-- vec starts at a memory address that is a multiple of `alignment` bits
+- vec starts at a memory address that is a multiple of `alignment` bytes
 - Int(pointer(vec)) % alignment == 0
 
 - alignment constrains the memory address of start of the vector 
-- alignment is bitcount, (alignment ÷ 8 is the alignment in bytes)
+- alignment is bitcount, (alignment * 8 is the alignment in bits)
 - alignment must be a power of 2 and must be >= 16
 
-`amaloc` works on Unixes (Linux, Apple, Bsd), Windows
-""" amalloc
+`memalign` works on Unixes (Linux, Apple, Bsd), Windows
+""" memalign
 
 @inline function memalign(::Type{T}, nitems::Integer, alignment::Integer) where T
     @static Sys.iswindows() ? memalign_windows(T, nitems, alignment) : memalign_posix(T, nitems, alignment)
