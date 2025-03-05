@@ -5,12 +5,8 @@
 
 ### exports
 
-- `memalign(item_type, item_count, bytes_of_alignment; zeros=false)`
-
-```
-memalign_zeros(item_type, item_count, bytes_of_alignment) =
-    memalign(item_type, item_count, bytes_of_alignment; zeros=true)
-```
+- `memalign(item_type, item_count, bytes_of_alignment)`
+- `memalign_clear(item_type, item_count, bytes_of_alignment)`
   
 ```
 #  vec::DenseVector = memalign(item_type, item_count, nbyte_alignment = 64)
