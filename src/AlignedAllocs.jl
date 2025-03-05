@@ -1,28 +1,13 @@
-mmodule AlignedAllocs
+module AlignedAllocs
 
-export memaligned
+export memalign, memalign_clear
 
-# aaloc() error codes
+# allocation error codes
 const ENOMEM = Cint(12)  # Out of memory error code
 const EINVAL = Cint(22)  # Invalid argument error code
 
 """
-    memalign(::Type{T}, nitems::Integer) where T
-
-__(by default, 64 byte) aligned uninitialized memory allocation__
-
-Allocate memory for a densevector vec = Vector{T}(undef, nitems)
-- vec starts at a memory address that is a multiple of 64 bytes
-
-`memalign` works on Unixes (Linux, Apple, Bsd), Windows
-""" memalign
-
-@inline function memalign(::Type{T}, nitems::Integer) where T
-    @static Sys.iswindows() ? memalign_windows(T, nitems, 64) : memalign_posix(T, nitems, 64)
-end
-
-"""
-    memalign(::Type{T}, nitems::Integer, alignbytes::Integer) where T
+    memalign(::Type{T}, nitems::Integer, alignment::Integer=64) where T
 
 __aligned uninitialized memory allocation__
 
@@ -37,106 +22,65 @@ Allocate memory for a densevector vec = Vector{T}(undef, nitems)
 `memalign` works on Unixes (Linux, Apple, Bsd), Windows
 """ memalign
 
-@inline function memalign(::Type{T}, nitems::Integer, alignment::Integer) where T
+@inline function memalign(::Type{T}, nitems::Integer, alignment::Integer=64) where T
     @static Sys.iswindows() ? memalign_windows(T, nitems, alignment) : memalign_posix(T, nitems, alignment)
 end
 
-function memalign_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
-    vec = amalloc_windows(T, nitems, alignment)
-    vec .= zero(T)
-    vec
-end
-        
-function memalign_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
-    vec = amalloc_posix(T, nitems, alignment)
-    vec .= zero(T)
-    vec
-end
-
-
-
-
-
-
-
-
-
 """
-    acalloc(::Type{T}, nitems::Integer, alignto::Integer) where T
+    memalign_clear(::Type{T}, nitems::Integer, alignment=64) where T
 
-__aligned zeroed memory allocation__ with finalizer
+__aligned zeroed memory allocation__
 
 Allocate memory for a densevector vec = zeros(T, nitems)
-- vec starts at a memory address that is a multiple of `alignment` bits
-- Int(pointer(vec)) % alignment == 0
+- vec starts at a memory address that is a multiple of alignment bytes
 
-- alignment constrains the memory address of start of the vector 
-- alignment is bitcount, (alignment ÷ 8 is the alignment in bytes)
-- alignment must be a power of 2 and must be >= 16
+`memalign_clear` works on Unixes (Linux, Apple, Bsd), Windows
+""" memalign_clear
 
-`acaloc` works on Unixes (Linux, Apple, Bsd), Windows
-""" acalloc
-
-@inline function acalloc(::Type{T}, nitems::Integer, alignment::Integer) where T
-    @static Sys.iswindows() ? acalloc_windows(T, nitems, alignment) : acalloc_posix(T, nitems, alignment)
+@inline function memalign_clear(::Type{T}, nitems::Integer, alignment::Integer=64) where T
+    @static Sys.iswindows() ? memalign_clear_windows(T, nitems, alignment) : 
+                              memalign_clear_posix(T, nitems, alignment)
 end
 
-function acalloc_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
-    vec = amalloc_windows(T, nitems, alignment)
+@inline function memalign_clear_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
+    vec = memalign_windows(T, nitems, alignment)
     vec .= zero(T)
     vec
 end
         
-function acalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
-    vec = amalloc_posix(T, nitems, alignment)
+@inline function memalign_clear_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
+    vec = memalign_posix(T, nitems, alignment)
     vec .= zero(T)
     vec
 end
 
 # =================================================================================
-# =================================================================================
-# =================================================================================
 
-@inline function amalloc(T::Type, nitems::Integer, alignment::Integer)
-    @static Sys.iswindows() ? amalloc_windows(T, nitems, alignment) : amalloc_posix(T, nitems, alignment)
-end
-
-function amalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
+function memalign_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
     (ispow2(alignment) && alignment >= 16) || 
         throw(ArgumentError("Alignment ($alignment) must be 2^p where p >= 4"))
 
     bytes_per_item = sizeof(T)
     total_bytes = Base.checked_mul(nitems, bytes_per_item)
-        
+
     local ptr::Ptr{T} = Ptr{T}()
 
-     memref = Ref{Ptr{Cvoid}}(C_NULL)
-     ret = ccall( (:posix_memalign, "libc"), Cint,
-                  (Ref{Ptr{Cvoid}}, Csize_t, Csize_t),
-                  memref, alignment, total_bytes)
-    !iszero(ret) && throw(OutOfMemoryError())
+    memref = Ref{Ptr{Cvoid}}(C_NULL)
+    ret = ccall((:posix_memalign, "libc"), Cint,
+                (Ref{Ptr{Cvoid}}, Csize_t, Csize_t),
+                 memref, alignment, total_bytes)
+    !iszero(ret) && alloc_error(ret)
     
     ptr = memref[]
-    memref = Ref{Ptr{T}}()
-    err = ccall((:posix_memalign, "libc"), Cint,
-                (Ref{Ptr{T}}, Csize_t, Csize_t),
-                memref, alignment, total_bytes)
-    !iszero(err) && aaloc_error(err)
-    ptr = memref[]
-    
     confirm_alignment(ptr, alignment) 
     
     # use the allocated memory as a Vector{T}(undef, nitems)
-    vec = unsafe_wrap(Array, Ptr{T}(ptr), nitems; own=true)
-    
-    finalizer(vec) do x # let the GC to free this allocated memory
-        @GC.preserve x ccall((:free, "libc"), Cvoid, (Ptr{T},), ptr)
-    end
+    vec = @GC.preserve ptr unsafe_wrap(Array, Ptr{T}(ptr), nitems; own=true)
     
     return vec
 end
 
-function amalloc_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
+function memalign_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
     (ispow2(alignment) && alignment >= 16) || 
         throw(ArgumentError("Alignment ($alignment) must be 2^p where p >= 4"))
     
@@ -147,16 +91,16 @@ function amalloc_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
     
     ptr = ccall((:_aligned_malloc, "msvcrt"), Ptr{T},
                 (Csize_t, Csize_t), total_bytes, alignment)        
-    (ptr == C_NULL) && aaloc_error(ENOMEM)
+    (ptr == C_NULL) && alloc_error(ENOMEM)
 
     confirm_alignment(ptr, alignment) 
     
     # use the allocated memory as a Vector{T}(undef, nitems)
-    vec = unsafe_wrap(Array, Ptr{T}(ptr), nitems; own=true)
+    vec = @GC.preserve ptr unsafe_wrap(Array, Ptr{T}(ptr), nitems; own=false)
     
     # allow the GC to free the allocated memory
-    finalizer(vec) do x
-        @GC.preserve x ccall((:_aligned_free, "msvcrt"), Cvoid, (Ptr{T},), ptr)
+    finalizer(vec) do _
+        @GC.preserve ptr ccall((:_aligned_free, "msvcrt"), Cvoid, (Ptr{T},), ptr)
     end
     
     return vec
@@ -177,7 +121,7 @@ function confirm_alignment(ptr::Ptr, alignment::Integer)
     end
 end
 
-function aalloc_error(err)
+function alloc_error(err)
     iszero(err) && return nothing
     
     if err == EINVAL
@@ -187,5 +131,6 @@ function aalloc_error(err)
     end
 end
 
-end  # AlignedAlloc
+end  # AlignedAllocs
+
 
