@@ -1,86 +1,59 @@
-mmodule AlignedAllocs
+module AlignedAllocs
 
-export memalign, memalign4, memalign8
+export memalign, memalign_zeros
 
-# aaloc() error codes
+# allocation error codes
 const ENOMEM = Cint(12)  # Out of memory error code
 const EINVAL = Cint(22)  # Invalid argument error code
 
 """
-    memalign64(::Type{T}, nitems::Integer) where T
+    memalign(::Type{T}, nitems::Integer, alignment=64) where T
 
-__8 byte aligned uninitialized memory allocation__ with finalizer
-
-Allocate memory for a densevector vec = Vector{T}(undef, nitems)
-- vec starts at a memory address that is a multiple of 8 bytes
-
-`memalign64` works on Unixes (Linux, Apple, Bsd), Windows
-""" memalign64
-
-@inline funciton memalign64(::Type{T}, nitems::Integer) where T
-    @static Sys.iswindows() ? amalloc_windows(T, nitems, 64) : amalloc_posix(T, nitems, 64)
-end
-
-"""
-    amalloc(::Type{T}, nitems::Integer, alignto::Integer) where T
-
-__aligned uninitialized memory allocation__ with finalizer
+__aligned uninitialized memory allocation__
 
 Allocate memory for a densevector vec = Vector{T}(undef, nitems)
-- vec starts at a memory address that is a multiple of `alignment` bits
-- Int(pointer(vec)) % alignment == 0
+- vec starts at a memory address that is a multiple of alignment bytes
 
-- alignment constrains the memory address of start of the vector 
-- alignment is bitcount, (alignment ÷ 8 is the alignment in bytes)
-- alignment must be a power of 2 and must be >= 16
+`memalign` works on Unixes (Linux, Apple, Bsd), Windows
+""" memalign
 
-`amaloc` works on Unixes (Linux, Apple, Bsd), Windows
-""" amalloc
-
-@inline function amalloc(::Type{T}, nitems::Integer, alignment::Integer) where T
+@inline function memalign(::Type{T}, nitems::Integer, alignment::Integer=64) where T
     @static Sys.iswindows() ? amalloc_windows(T, nitems, alignment) : amalloc_posix(T, nitems, alignment)
 end
 
-function amalloc_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
-    vec = amalloc_windows(T, nitems, alignment)
-    vec .= zero(T)
-    vec
-end
-        
-function amalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
-    vec = amalloc_posix(T, nitems, alignment)
-    vec .= zero(T)
-    vec
-end
-
 """
-    acalloc(::Type{T}, nitems::Integer, alignto::Integer) where T
+    memalign_zeros(::Type{T}, nitems::Integer, alignment=64) where T
 
-__aligned zeroed memory allocation__ with finalizer
+__aligned zeroed memory allocation__
 
 Allocate memory for a densevector vec = zeros(T, nitems)
-- vec starts at a memory address that is a multiple of `alignment` bits
-- Int(pointer(vec)) % alignment == 0
+- vec starts at a memory address that is a multiple of alignment bytes
 
-- alignment constrains the memory address of start of the vector 
-- alignment is bitcount, (alignment ÷ 8 is the alignment in bytes)
-- alignment must be a power of 2 and must be >= 16
+`memalign_zeros` works on Unixes (Linux, Apple, Bsd), Windows
+""" memalign_zeros
 
-`acaloc` works on Unixes (Linux, Apple, Bsd), Windows
-""" acalloc
-
-@inline function acalloc(::Type{T}, nitems::Integer, alignment::Integer) where T
+@inline function memalign_zeros(::Type{T}, nitems::Integer, alignment::Integer=64) where T
     @static Sys.iswindows() ? acalloc_windows(T, nitems, alignment) : acalloc_posix(T, nitems, alignment)
 end
 
-function acalloc_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
-    vec = amalloc_windows(T, nitems, alignment)
+@inline function amalloc_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
+    vec = memalign_windows(T, nitems, alignment)
+    vec
+end
+        
+@inline function amalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
+    vec = memalign_posix(T, nitems, alignment)
+    vec
+end
+
+@inline function acalloc_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
+    vec = memalign_windows(T, nitems, alignment)
     vec .= zero(T)
     vec
 end
         
-function acalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
-    vec = amalloc_posix(T, nitems, alignment)
+@inline function acalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
+    vec = memalign_posix(T, nitems, alignment)
     vec .= zero(T)
     vec
 end
@@ -88,10 +61,6 @@ end
 # =================================================================================
 # =================================================================================
 # =================================================================================
-
-@inline function amalloc(T::Type, nitems::Integer, alignment::Integer)
-    @static Sys.iswindows() ? amalloc_windows(T, nitems, alignment) : amalloc_posix(T, nitems, alignment)
-end
 
 function amalloc_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
     (ispow2(alignment) && alignment >= 16) || 
