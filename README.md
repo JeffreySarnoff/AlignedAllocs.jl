@@ -21,7 +21,7 @@ The take away message is that for dense vectors of these sizes, you do not know 
 -----
 
 ```
-#  vec::DenseVector = memalign(item_type, item_count, nbyte_alignment = 64)
+#  vec::DenseVector = memalign(item_type, item_count, byte_alignment = 64)
 #                              bitstype ,    > 0    ,   2^p where p > 2
 
 element_type      = Float32   # a type T for which isbitstype(T) is true
