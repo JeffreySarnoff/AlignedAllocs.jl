@@ -29,7 +29,7 @@ bytesofalignment  = 64 # bytes
 vec = memalign(element_type, element_count, bytesofalignment)
   
 vec behaves as a DenseVector with enhanced cache-line performance
-vec is unsafe_wrapped contiguous memory provided by LLVM intrinsic or C/C++ library functions
+vec is unsafe_wrapped contiguous memory from LLVM intrinsic or C/C++ library function
 ```
 
 ----
