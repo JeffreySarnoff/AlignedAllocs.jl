@@ -9,3 +9,4 @@ AlignedAllocs = "6ac60441-711f-43f0-8178-7f71f0888134"
 
 [compat]
 Documenter = "1"
+julia = "1.10"
