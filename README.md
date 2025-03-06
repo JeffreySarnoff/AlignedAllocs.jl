@@ -5,8 +5,8 @@
 
 ### exports
 
-- `memalign(item_type, item_count, bytes_of_alignment)`
-- `memalign_clear(item_type, item_count, bytes_of_alignment)`
+- `memalign(item_type, item_count, byte_alignment)`
+- `memalign_clear(item_type, item_count, byte_alignment)`
 
 ### why it matters
 
