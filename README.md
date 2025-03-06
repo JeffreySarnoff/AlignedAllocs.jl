@@ -14,6 +14,7 @@ Modern processors are organized to retrieve data in memory into chip local fast 
 
 When using SIMD, alignment of 256 bytes (or more) is critical to getting the throughput one expects from SIMD operations.  Running unaligned data through SIMD slows the processing down a very great deal.
 
+-----
 
 ```
 #  vec::DenseVector = memalign(item_type, item_count, nbyte_alignment = 64)
