@@ -131,8 +131,10 @@ function alloc_error(err)
     
     if err == EINVAL
         throw(ArgumentError("Invalid alignment: must be power of 2 and multiple of $ptr_size"))
-    else
+    elseif err == ENOMEM
         throw(OutOfMemoryError())
+    else
+        throw(ErrorException("Allocation error: $err"))
     end
 end
 
