@@ -10,9 +10,11 @@
 
 ### why it matters
 
-Modern processors are organized to retrieve data in memory into chip local fast caches. At a practical level, the unit of memory retrieval is the cache line.  For most general purpose computing, the size of a cache line is 64 bytes (so one cache line holds 64 UInt8s, or 32 Int16s, or 16 Float32s, or 8 Float64s). When data is stored aligned to this size, its retreival is simpler and often quicker (crossing a cache line with say, a Float32 incurs costly delays).  
+Modern processors retrieve data in memory into fast chip-local caches. At a practical level, the unit of memory retrieval is the cache line.  For most general purpose computing, the size of a cache line is 64 bytes (one cache line holds 64 UInt8s, 32 Int16s, 16 Float32s, or 8 Float64s). When data is stored aligned to this size, its retrieval is simpler. Straddling two cache lines with a single primitive bitstype value incurs costly delays.  
 
-When using SIMD, alignment of 256 bytes (or more) is critical to getting the throughput one expects from SIMD operations.  Running unaligned data through SIMD slows the processing down a very great deal.
+When using SIMD, alignment of 256 bytes (or more, depending on the processor) is critical to getting the throughput one expects from SIMD operations.  Running unaligned data through SIMD slows the processing down significantly.
+
+Julia memory alignment for dense vectors of a numeric bitstype is at least 16 bytes and may be 64 bytes. Which of these alignments obtains depends on the size of the vector. At the time of this writing on a Windows system, 512 Float32s align to 64 bytes while 500 or fewer Float32s may align to 16 bytes. Similarly, 256 Float64s align to 64 bytes while 250 or fewer may align to 16 bytes. A dense vector of 2008 or fewer UInt8s may align to 16 bytes.  These settings are internal to Julia and may change going forward. The take away message is that for dense vectors of these sizes, you do not know what allocation alignment holds. If that is not enough uncertainty, the allocation mechanism on Windows differs from the allocation mechanism on 'nix compatible systems.
 
 -----
 
