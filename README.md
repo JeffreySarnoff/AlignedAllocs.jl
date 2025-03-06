@@ -43,10 +43,10 @@ vec is unsafe_wrapped contiguous memory from LLVM intrinsic or C/C++ library fun
   
 
 ----
-### Thank you Slack
+### Thank you
 
-Stephan Karpinski
-Gabriel Baraldi
-Diogo Netto
-Bradley
+- Stephan Karpinski
+- Gabriel Baraldi
+- Diogo Netto
+- Bradley
 
