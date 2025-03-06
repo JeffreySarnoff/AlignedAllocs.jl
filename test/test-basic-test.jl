@@ -4,4 +4,6 @@
     @test length(vec) == 128
     @test length(zvec) == 256
     @test zvec[1] == 0
+    @test UInt64(pointer(vec)) % 64 == 0
+    @test UInt64(pointer(zvec)) % 64 == 0
 end
