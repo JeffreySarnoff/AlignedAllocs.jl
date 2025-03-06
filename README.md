@@ -14,7 +14,9 @@ Modern processors retrieve data in memory into fast chip-local caches. At a prac
 
 When using SIMD, alignment of 256 bytes (or more, depending on the processor) is critical to getting the throughput one expects from SIMD operations.  Running unaligned data through SIMD slows the processing down significantly.
 
-Julia memory alignment for dense vectors of a numeric bitstype is at least 16 bytes and may be 64 bytes. Which of these alignments obtains depends on the size of the vector. At the time of this writing on a Windows system, 512 Float32s align to 64 bytes while 500 or fewer Float32s may align to 16 bytes. Similarly, 256 Float64s align to 64 bytes while 250 or fewer may align to 16 bytes. A dense vector of 2008 or fewer UInt8s may align to 16 bytes.  These settings are internal to Julia and may change going forward. The take away message is that for dense vectors of these sizes, you do not know what allocation alignment holds. If that is not enough uncertainty, the allocation mechanism on Windows differs from the allocation mechanism on 'nix compatible systems.
+Julia memory alignment for dense vectors of a numeric bitstype is at least 16 bytes and may be 64 bytes. Which of these alignments obtains depends on the size of the vector. At the time of this writing on a Windows system, 512 Float32s align to 64 bytes while 500 or fewer Float32s may align to 16 bytes. Similarly, 256 Float64s align to 64 bytes while 250 or fewer may align to 16 bytes. A dense vector of 2008 or fewer UInt8s may align to 16 bytes.  These settings are internal to Julia and may change going forward. 
+
+The take away message is that for dense vectors of these sizes, you do not know what allocation alignment holds. If that is not enough uncertainty, the allocation mechanism on Windows differs from the allocation mechanism on 'nix compatible systems.
 
 -----
 
