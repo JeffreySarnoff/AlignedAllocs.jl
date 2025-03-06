@@ -57,11 +57,9 @@ end
 # =================================================================================
 
 function memalign_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
-    (ispow2(alignment) && alignment >= 16) || 
-        throw(ArgumentError("Alignment ($alignment) must be 2^p where p >= 4"))
+    check_args(T, nitems, alignment)
 
-    bytes_per_item = sizeof(T)
-    total_bytes = Base.checked_mul(nitems, bytes_per_item)
+    total_bytes = Base.checked_mul(nitems, sizeof(T))
 
     local ptr::Ptr{T} = Ptr{T}()
     memref = Ref{Ptr{Cvoid}}(C_NULL)
@@ -80,11 +78,9 @@ function memalign_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
 end
 
 function memalign_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
-    (ispow2(alignment) && alignment >= 16) || 
-        throw(ArgumentError("Alignment ($alignment) must be 2^p where p >= 4"))
+    check_args(T, nitems, alignment)
     
-    item_bytes = sizeof(T)    
-    total_bytes = Base.checked_mul(nitems, item_bytes)
+    total_bytes = Base.checked_mul(nitems, sizeof(T))
         
     local ptr::Ptr{T} = Ptr{T}()    
     ptr = ccall((:_aligned_malloc, "msvcrt"), Ptr{T},
@@ -105,6 +101,17 @@ function memalign_windows(::Type{T}, nitems::Integer, alignment::Integer) where 
 end
 
 # error handling
+
+function check_args(::Type{T}, nitems, alignment) where T
+    isbitstype(T) || 
+    throw(ArgumentError("element_type ($T) must be a `bitstype`"))
+
+    nitems > 0 || 
+    throw(ArgumentError("element_count ($nitems) must be > 0"))
+
+    (ispow2(alignment) && alignment >= 16) || 
+    throw(ArgumentError("Alignment ($alignment) must be 2^p where p >= 4"))
+end
 
 function confirm_alignment(ptr::Ptr, alignment::Integer)
     if UInt(ptr) % alignment != 0
