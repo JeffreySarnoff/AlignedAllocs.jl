@@ -39,7 +39,7 @@ vec is unsafe_wrapped contiguous memory from LLVM intrinsic or C/C++ library fun
 ----
 
 ### also consider
-[ArrayAllocators.jl](https://github.com/mkitti/ArrayAllocators.jl) - a much more developed approach to aligned arrays
+[ArrayAllocators.jl](https://github.com/mkitti/ArrayAllocators.jl) - a type for aligned arrays
   
 
 
