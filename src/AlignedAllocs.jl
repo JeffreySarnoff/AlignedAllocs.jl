@@ -64,7 +64,6 @@ function memalign_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
     total_bytes = Base.checked_mul(nitems, bytes_per_item)
 
     local ptr::Ptr{T} = Ptr{T}()
-
     memref = Ref{Ptr{Cvoid}}(C_NULL)
     ret = ccall((:posix_memalign, "libc"), Cint,
                 (Ref{Ptr{Cvoid}}, Csize_t, Csize_t),
@@ -87,8 +86,7 @@ function memalign_windows(::Type{T}, nitems::Integer, alignment::Integer) where 
     item_bytes = sizeof(T)    
     total_bytes = Base.checked_mul(nitems, item_bytes)
         
-    local ptr::Ptr{T} = Ptr{T}()
-    
+    local ptr::Ptr{T} = Ptr{T}()    
     ptr = ccall((:_aligned_malloc, "msvcrt"), Ptr{T},
                 (Csize_t, Csize_t), total_bytes, alignment)        
     (ptr == C_NULL) && alloc_error(ENOMEM)
