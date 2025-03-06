@@ -10,7 +10,7 @@
 
 ### why it matters
 
-Modern processors retrieve data in memory into fast chip-local caches. At a practical level, the unit of memory retrieval is the cache line.  For most general purpose computing, the size of a cache line is 64 bytes (one cache line holds 64 UInt8s, 32 Int16s, 16 Float32s, or 8 Float64s). When data is stored aligned to this size, its retrieval is simpler. Straddling two cache lines with a single primitive bitstype value incurs costly delays.  
+Modern processors retrieve data in memory into fast chip-local caches. At a practical level, the unit of memory retrieval is the cache line.  For most general-purpose computing, the size of a cache line is 64 bytes (one cache line holds 64 UInt8s, 32 Int16s, 16 Float32s, or 8 Float64s), and you may want to align on double that size, so Julia's alignment is never optimal. When data is stored aligned to cache line size, its retrieval is simpler. Straddling two cache lines with a single primitive bitstype value incurs costly delays.  
 
 When using SIMD, alignment of 256 bytes (or more, depending on the processor) is critical to getting the throughput one expects from SIMD operations.  Running unaligned data through SIMD slows the processing down significantly.
 
@@ -28,7 +28,7 @@ element_type      = Float32   # a type T for which isbitstype(T) is true
 element_count     = 1024
 element_bytes     = sizeof(element_type) * element_count
 
-bytesofalignment  = 64 # bytes
+bytesofalignment  = 128 # bytes
 
 vec = memalign(element_type, element_count, bytesofalignment)
   
