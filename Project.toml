@@ -1,7 +1,7 @@
 name = "AlignedAllocs"
 author = "Jeffrey Sarnoff <jeffrey.sarnoff@gmail.com>"
 uuid = "6ac60441-711f-43f0-8178-7f71f0888134"
-version = "0.1.1"
+version = "0.1.0"
 
 [compat]
 julia = "1.10"
