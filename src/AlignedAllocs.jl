@@ -2,7 +2,7 @@ module AlignedAllocs
 
 export memalign, memalign_clear
 
-import "precompilation.jl"
+include("precompilation.jl")
 
 # allocation error codes
 const ENOMEM = Cint(12)  # Out of memory error code
