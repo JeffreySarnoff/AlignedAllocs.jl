@@ -2,6 +2,7 @@ module AlignedAllocs
 
 export memalign, memalign_clear
 
+# define CACHE_LINE_SIZE as a constant
 include("precompilation.jl")
 
 # allocation error codes
