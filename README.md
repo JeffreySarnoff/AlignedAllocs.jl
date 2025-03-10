@@ -59,4 +59,6 @@ vec is unsafe_wrapped contiguous memory from LLVM intrinsic or C/C++ library fun
 - Diogo Netto
 - Bradley
 - chakravala
+- Jakob Nybo Nissen
+
 
