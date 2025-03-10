@@ -54,7 +54,7 @@ function detect_cache_line_size()::Int
             clsize = ccall((:host_get_page_size, "libc"), Csize_t, (Cint,), 0)
             return max(clsize, FallbackCacheLineSize)
         end
-    elseif Sys.unix()
+    elseif Sys.isunix()
         # Linux: use sysconf(_SC_LEVEL1_DCACHE_LINESIZE)
         line_size = ccall(:sysconf, Clong, (Cint,), _SC_LEVEL1_DCACHE_LINESIZE)
         if line_size > 0
