@@ -1,7 +1,5 @@
 module AlignedAllocs
 
-public memalign, memalign_clear
-
 export memalign, memalign_clear
 
 # define CACHE_LINE_SIZE as a constant
