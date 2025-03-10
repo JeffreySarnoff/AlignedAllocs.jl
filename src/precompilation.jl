@@ -39,26 +39,6 @@ else
     const CACHE_TYPE_OFFSET   = UNION_OFFSET + 8   # Type is at offset 16.
 end
 
-function detect_cache_line_size()
-    @static if Sys.iswindows()
-        clsize = ccall((:GetSystemInfo, "kernel32"), Cvoid, (Ref{SYSTEM_INFO},), Ref{SYSTEM_INFO}())
-    elseif Sys.isapple()
-        clsize = ccall((:host_get_page_size, "libc"), Csize_t, (Cint,), 0)  
-    elseif Sys.islinux()
-        clsize = ccall((:sysconf, "libc"), Clong, (Cint,), 30)  
-    else
-        clsize = 64
-    end
-
-    clsize
-end
-
-@setup_workload begin
-    clsize = detect_cache_line_size()
-    @eval const CACHE_LINE_SIZE = $clsize
-end
-
-
 # Main function to retrieve the cache line size.
 function detect_cache_line_size()::Int
     if Sys.isapple()
@@ -130,5 +110,10 @@ function get_l1_cache_line_size_windows()::Int
     end
 
     return FallbackCacheLineSize  # Fallback value.
+end
+
+@setup_workload begin
+    clsize = detect_cache_line_size()
+    @eval const CACHE_LINE_SIZE = $clsize
 end
 
