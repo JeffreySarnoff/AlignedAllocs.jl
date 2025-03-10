@@ -25,7 +25,7 @@ Allocate memory for a densevector vec = Vector{T}(undef, nitems)
 `memalign` works on Unixes (Linux, Apple, Bsd), Windows
 """ memalign
 
-public @inline function memalign(::Type{T}, nitems::Integer, alignment::Integer=CACHE_LINE_SIZE) where T
+@inline public function memalign(::Type{T}, nitems::Integer, alignment::Integer=CACHE_LINE_SIZE) where T
     @static Sys.iswindows() ? memalign_windows(T, nitems, alignment) : memalign_posix(T, nitems, alignment)
 end
 
@@ -40,7 +40,7 @@ Allocate memory for a densevector vec = zeros(T, nitems)
 `memalign_clear` works on Unixes (Linux, Apple, Bsd), Windows
 """ memalign_clear
 
-public @inline function memalign_clear(::Type{T}, nitems::Integer, alignment::Integer=CACHE_LINE_SIZE) where T
+ @inline public function memalign_clear(::Type{T}, nitems::Integer, alignment::Integer=CACHE_LINE_SIZE) where T
     @static Sys.iswindows() ? memalign_clear_windows(T, nitems, alignment) : 
                               memalign_clear_posix(T, nitems, alignment)
 end
