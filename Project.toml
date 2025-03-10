@@ -9,5 +9,4 @@ CpuId = "adafc99b-e345-5852-983c-f28acb93d879"
 
 [compat]
 PrecompileTools = "1.2"
-CpuId = "0.3 - 0.9"
 julia = "1.10"
