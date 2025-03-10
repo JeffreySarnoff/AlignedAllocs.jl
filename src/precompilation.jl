@@ -1,7 +1,7 @@
 #=
    note:
    Some of this is the result of many iterations and refinements of multiple ai tools
-   working on each other's output, guided by my directions. Some is not.
+   working on each other's output, each iteration guided by my directions. Some is not.
 =#
 
 using PrecompileTools
