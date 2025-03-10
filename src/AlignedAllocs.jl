@@ -68,7 +68,7 @@ function memalign_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
 
     local ptr::Ptr{T} = Ptr{T}()
     memref = Ref{Ptr{Cvoid}}(C_NULL)
-    ret = ccall((:posix_memalign, "libc"), Cint,
+    ret = ccall((:posix_memalign), Cint,
                 (Ref{Ptr{Cvoid}}, Csize_t, Csize_t),
                  memref, alignment, total_bytes)
     !iszero(ret) && alloc_error(ret)
