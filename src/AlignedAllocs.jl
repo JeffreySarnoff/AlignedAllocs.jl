@@ -2,6 +2,8 @@ module AlignedAllocs
 
 export memalign, memalign_clear
 
+using Base: Libc
+
 # define CACHE_LINE_SIZE as a constant
 include("precompilation.jl")
 
@@ -121,7 +123,7 @@ function confirm_alignment(ptr::Ptr, alignment::Integer)
         if Sys.iswindows()
             ccall((:_aligned_free, "msvcrt"), Cvoid, (Ptr{Cvoid},), ptr)
         else
-            ccall((:free, "libc"), Cvoid, (Ptr{Cvoid},), ptr)
+            ccall((:free, "Libc"), Cvoid, (Ptr{Cvoid},), ptr)
         end
 
         errmsg = "aligned memory allocation failed: returned address $(UInt(ptr)) is not aligned to $(alignment) bytes"
