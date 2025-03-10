@@ -24,11 +24,8 @@ When using SIMD, alignment of 256 bytes (or more, depending on the processor) is
 Julia memory alignment for dense vectors of numeric bitstypes is at least 16 bytes and may be 64 bytes. Which of these alignments obtains depends :). At the time of this writing on a Windows system, 512 Float32s align to 64 bytes while 500 or fewer Float32s may align to 16 bytes. Similarly, 256 Float64s align to 64 bytes while 250 or fewer may align to 16 bytes. Without this module, a dense vector of 2008 or fewer UInt8s may align to 16 bytes.  If that is not enough uncertainty, the allocation mechanism on Windows differs from the allocation mechanism on Apple and 'nix compatible systems. The specifics are internal to Julia and may change going forward.
 
 The take away message is that for dense vectors generally, you do not know what allocation alignment will hold with certainty.
-<<<<<<< HEAD
 
 There is some good news. GPU allocations are written to work well with the GPU.
-=======
->>>>>>> origin/main
 
 -----
 
