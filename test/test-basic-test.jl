@@ -1,5 +1,5 @@
 @testset "AlignedAllocs.jl" begin
-    @test AlignedAllocs.CACHE_LINE_SIZE >= 32
+    @test AlignedAllocs.CACHE_LINE_SIZE >= 64
     vec = memalign(Float32, 128, 64)
     zvec = memalign_clear(UInt16, 256, 64)
     @test length(vec) == 128
