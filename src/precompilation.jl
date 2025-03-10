@@ -118,8 +118,7 @@ function get_l1_cache_line_size_windows()::Int
     return FallbackCacheLineSize  # Fallback value.
 end
 
-@setup_workload begin
-    clsize = detect_cache_line_size()
-    @eval const CACHE_LINE_SIZE = $clsize
+@setup_workload CACHE_LINE_SIZE = begin
+    detect_cache_line_size()
 end
 
