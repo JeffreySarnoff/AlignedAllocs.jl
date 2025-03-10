@@ -53,8 +53,8 @@ function detect_cache_line_size()::Int
             return Int(line_size[])
         else
             # Fallback: use getpagesize() to get the system page size.
-            clsize = ccall(:getpagesize, Cint, ())
-            return max(Int(clsize), FallbackCacheLineSize)
+            # clsize = ccall(:getpagesize, Cint, ())
+            return FallbackCacheLineSize
         end
     elseif Sys.isunix()
         # Linux: use sysconf(_SC_LEVEL1_DCACHE_LINESIZE)
