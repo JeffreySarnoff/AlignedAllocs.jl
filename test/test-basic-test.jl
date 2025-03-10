@@ -1,7 +1,7 @@
 @testset "AlignedAllocs.jl" begin
+    vec = memalign(Float32, 128, 64);
+    zvec = memalign_clear(UInt16, 256, 64);
     @test AlignedAllocs.CACHE_LINE_SIZE >= 64
-    vec = memalign(Float32, 128, 64)
-    zvec = memalign_clear(UInt16, 256, 64)
     @test length(vec) == 128
     @test length(zvec) == 256
     @test zvec[1] == 0
