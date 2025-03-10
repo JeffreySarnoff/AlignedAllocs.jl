@@ -5,7 +5,11 @@
 =#
 
 using PrecompileTools
-using Base: Libc
+
+# Top-Level Constants and (Optional) Struct Declarations
+const FallbackCacheLineSize = 64
+
+using PrecompileTools
 
 # Top-Level Constants and (Optional) Struct Declarations
 const FallbackCacheLineSize = 64
@@ -20,16 +24,6 @@ const CACHE_TYPE_INSTRUCTION = 2
 const CACHE_TYPE_UNIFIED = 3
 
 # Define structure size and field offsets for Windows.
-# The layout of SYSTEM_LOGICAL_PROCESSOR_INFORMATION (for RelationCache) is:
-#   - ProcessorMask: 8 bytes (64-bit) or 4 bytes (32-bit)
-#   - Relationship: 4 bytes (immediately after ProcessorMask)
-#   - Padding then a union starts.
-# In the union, if it holds a CACHE_DESCRIPTOR, the layout is:
-#   Byte 0: Level
-#   Byte 1: Associativity
-#   Bytes 2-3: LineSize
-#   Bytes 4-7: Size
-#   Bytes 8-11: Type
 if Sys.WORD_SIZE == 64
     const ENTRY_SIZE          = 48
     const RELATIONSHIP_OFFSET = 8         # After 8 bytes of ProcessorMask.
@@ -49,7 +43,7 @@ end
 # Main function to retrieve the cache line size.
 function detect_cache_line_size()::Int
     if Sys.isapple()
-        # macOS: use sysctlbyname("hw.cachelinesize", ...)
+        # macOS: try to get "hw.cachelinesize" via sysctlbyname.
         line_size = Ref{Cuint}(0)
         size_ref = Ref{Csize_t}(sizeof(Cuint))
         ret = ccall(:sysctlbyname, Cint,
@@ -58,8 +52,9 @@ function detect_cache_line_size()::Int
         if ret == 0
             return Int(line_size[])
         else
-            clsize = ccall((:host_get_page_size, "Libc"), Csize_t, (Cint,), 0)
-            return max(clsize, FallbackCacheLineSize)
+            # Fallback: use getpagesize() to get the system page size.
+            clsize = ccall(:getpagesize, Cint, ())
+            return max(Int(clsize), FallbackCacheLineSize)
         end
     elseif Sys.isunix()
         # Linux: use sysconf(_SC_LEVEL1_DCACHE_LINESIZE)
@@ -102,7 +97,6 @@ function get_l1_cache_line_size_windows()::Int
     # For cache entries, the CACHE_RELATIONSHIP structure begins at offset 8:
     #   - Byte 0: Cache Level (we want Level 1)
     #   - Bytes 2–3: Cache-Line Size (UInt16)
-
     ptr = pointer(buffer)
     offset = 0
     total_size = bufsize[]
@@ -122,4 +116,3 @@ end
 @setup_workload CACHE_LINE_SIZE = begin
     detect_cache_line_size()
 end
-
