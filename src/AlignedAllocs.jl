@@ -2,6 +2,8 @@ module AlignedAllocs
 
 export memalign, memalign_clear
 
+import "precompilation.jl"
+
 # allocation error codes
 const ENOMEM = Cint(12)  # Out of memory error code
 const EINVAL = Cint(22)  # Invalid argument error code
@@ -44,13 +46,13 @@ end
 
 @inline function memalign_clear_windows(::Type{T}, nitems::Integer, alignment::Integer) where T
     vec = memalign_windows(T, nitems, alignment)
-    vec .= zero(T)
+    fill!(vec, zero(T))
     vec
 end
         
 @inline function memalign_clear_posix(::Type{T}, nitems::Integer, alignment::Integer) where T
     vec = memalign_posix(T, nitems, alignment)
-    vec .= zero(T)
+    fill!(vec, zero(T))
     vec
 end
 
