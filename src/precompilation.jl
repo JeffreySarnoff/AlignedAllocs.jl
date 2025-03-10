@@ -1,3 +1,9 @@
+#=
+   note:
+   some of this is the result of many iterations and refinements of multiple ai tools
+   working on each other's output, guided by my directions.
+=#
+
 using PrecompileTools
 
 # Top-Level Constants and (Optional) Struct Declarations
