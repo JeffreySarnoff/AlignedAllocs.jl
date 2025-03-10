@@ -5,6 +5,7 @@
 =#
 
 using PrecompileTools
+using Base: Libc
 
 # Top-Level Constants and (Optional) Struct Declarations
 const FallbackCacheLineSize = 64
@@ -57,7 +58,7 @@ function detect_cache_line_size()::Int
         if ret == 0
             return Int(line_size[])
         else
-            clsize = ccall((:host_get_page_size, "libc"), Csize_t, (Cint,), 0)
+            clsize = ccall((:host_get_page_size, "Libc"), Csize_t, (Cint,), 0)
             return max(clsize, FallbackCacheLineSize)
         end
     elseif Sys.isunix()
