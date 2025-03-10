@@ -6,17 +6,26 @@
 ### exports
 
 - `memalign(item_type, item_count, byte_alignment)`
+  - returns an uninitialized DenseVector{T} of length `item_count`
+  - T is a bitstype
+  
 - `memalign_clear(item_type, item_count, byte_alignment)`
+  - returns a zeroed DenseVector{T} of length `item_count`
+  - T is a bitstype (ensure `zero(T)` exists)
+
+- `byte_alignment` defaults to the local processor's cache-line size
 
 ### why it matters
 
-Modern processors retrieve data in memory into fast chip-local caches. At a practical level, the unit of memory retrieval is the cache line.  For most general purpose computing, the size of a cache line is 64 bytes (one cache line holds 64 UInt8s, 32 Int16s, 16 Float32s, or 8 Float64s). When data is stored aligned to this size, its retrieval is simpler. Straddling two cache lines with a single primitive bitstype value incurs costly delays.  
+Modern processors retrieve data in memory into fast chip-local caches. In practice, the unit of memory retrieval is the cache line.  For most general purpose computing, the size of (the Level 1) cache line is 64 bytes (one cache line holds 64 UInt8s, 32 Int16s, 16 Float32s, or 8 Float64s). When data is stored aligned to this size, its retrieval is simpler. Straddling two cache lines with a single primitive bitstype value incurs costly delays.  
 
 When using SIMD, alignment of 256 bytes (or more, depending on the processor) is critical to getting the throughput one expects from SIMD operations.  Running unaligned data through SIMD slows the processing down significantly.
 
-Julia memory alignment for dense vectors of a numeric bitstype is at least 16 bytes and may be 64 bytes. Which of these alignments obtains depends on the size of the vector. At the time of this writing on a Windows system, 512 Float32s align to 64 bytes while 500 or fewer Float32s may align to 16 bytes. Similarly, 256 Float64s align to 64 bytes while 250 or fewer may align to 16 bytes. A dense vector of 2008 or fewer UInt8s may align to 16 bytes.  These settings are internal to Julia and may change going forward. 
+Julia memory alignment for dense vectors of numeric bitstypes is at least 16 bytes and may be 64 bytes. Which of these alignments obtains depends :). At the time of this writing on a Windows system, 512 Float32s align to 64 bytes while 500 or fewer Float32s may align to 16 bytes. Similarly, 256 Float64s align to 64 bytes while 250 or fewer may align to 16 bytes. Without this module, a dense vector of 2008 or fewer UInt8s may align to 16 bytes.  If that is not enough uncertainty, the allocation mechanism on Windows differs from the allocation mechanism on Apple and 'nix compatible systems. The specifics are internal to Julia and may change going forward.
 
-The take away message is that for dense vectors of these sizes, you do not know what allocation alignment holds. If that is not enough uncertainty, the allocation mechanism on Windows differs from the allocation mechanism on 'nix compatible systems.
+The take away message is that for dense vectors generally, you do not know what allocation alignment will hold with certainty.
+
+There is some good news. GPU allocations are written to work well with the GPU.
 
 -----
 
