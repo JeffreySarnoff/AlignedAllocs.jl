@@ -30,6 +30,15 @@ There is some good news. GPU allocations are written to work well with the GPU.
 -----
 
 ```
+function encodings(bitwidth, typ=UInt16)
+    n = 2^bitwidth
+    codes = memalign_clear(typ, n)
+    codes[:] = collect(map(typ, 0:(n-1)))
+    codes
+end
+```
+
+```
 #  vec::DenseVector = memalign(item_type, item_count, byte_alignment = 64)
 #                              bitstype ,    > 0    ,   2^p where p > 2
 
