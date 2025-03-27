@@ -105,6 +105,8 @@ function memalign_windows(::Type{T}, nitems::Integer, alignment::Integer) where 
     return vec
 end
 
+# =================================================================================
+
 # error handling
 
 function check_args(::Type{T}, nitems, alignment) where T
