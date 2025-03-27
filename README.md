@@ -2,7 +2,8 @@
 ## lightweight cross-platform allocation of aligned memory 
 #### Copyright 2025 by Jeffrey Sarnoff. Relased under the MIT License.
 ----
-https://zenodo.org/badge/DOI/10.5281/zenodo.15095672.svg
+![image](https://github.com/user-attachments/assets/407b877f-84aa-47bc-8756-e049770a846b)
+
 ----
 
 ### exports
