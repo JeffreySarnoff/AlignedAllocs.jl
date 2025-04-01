@@ -2,6 +2,9 @@
 ## lightweight cross-platform allocation of aligned memory 
 #### Copyright 2025 by Jeffrey Sarnoff. Relased under the MIT License.
 ----
+![image](https://github.com/user-attachments/assets/407b877f-84aa-47bc-8756-e049770a846b)
+
+----
 
 ### exports
 
@@ -28,6 +31,15 @@ The take away message is that for dense vectors generally, you do not know what 
 There is some good news. GPU allocations are written to work well with the GPU.
 
 -----
+
+```
+function encodings(bitwidth, typ=UInt16)
+    n = 2^bitwidth
+    codes = memalign_clear(typ, n)
+    codes[:] = collect(map(typ, 0:(n-1)))
+    codes
+end
+```
 
 ```
 #  vec::DenseVector = memalign(item_type, item_count, byte_alignment = 64)
