@@ -1,6 +1,6 @@
 module AlignedAllocs
 
-export memalign, memalign_clear
+export memalign, memalign_clear,
 
 using Base: Libc
 
@@ -145,6 +145,10 @@ function alloc_error(err)
     end
 end
 
+# alignment checking
+
+byte_alignment(xs::AbstractArray) = 2^trailing_zeros(pointer(xs))
+    
 end  # AlignedAllocs
 
 
