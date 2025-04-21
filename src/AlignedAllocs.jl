@@ -1,6 +1,6 @@
 module AlignedAllocs
 
-export memalign, memalign_clear,
+export memalign, memalign_clear, alignment
 
 using Base: Libc
 
@@ -147,7 +147,7 @@ end
 
 # alignment checking
 
-byte_alignment(xs::AbstractArray) = 2^trailing_zeros(pointer(xs))
+alignment(xs::AbstractArray) = 2^trailing_zeros(UInt64(pointer(xs)))
     
 end  # AlignedAllocs
 
