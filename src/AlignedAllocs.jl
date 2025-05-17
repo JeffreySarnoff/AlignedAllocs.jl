@@ -5,6 +5,7 @@ export memalign, memalign_clear, alignment
 using Base: Libc
 
 # define CACHE_LINE_SIZE as a constant
+CACHE_LINE_SIZE = 64
 include("precompilation.jl")
 
 # allocation error codes
