@@ -6,8 +6,13 @@ using Base: Libc
 
 # define CACHE_LINE_SIZE as a module scoped constant
 include("precompilation.jl")
+
 if !(@isdefined CACHE_LINE_SIZE)
-   const CACHE_LINE_SIZE = FallbackCacheLineSize
+   if @isdefined detect_cache_line_size
+       const CACHE_LINE_SIZE = detect_cache_line_size()
+   else
+       const CACHE_LINE_SIZE = FallbackCacheLineSize
+   end
 end
 
 # allocation error codes
