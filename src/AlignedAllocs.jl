@@ -6,9 +6,7 @@ using Base: Libc
 
 # define CACHE_LINE_SIZE as a module scoped constant
 include("precompilation.jl")
-if !isdefined(AlignedAllocs, :CACHE_LINE_SIZE)
-    const CACHE_LINE_SIZE = AlignedAllocs.detect_cache_line_size()
-end
+const CACHE_LINE_SIZE = AlignedAllocs.detect_cache_line_size()
 # allocation error codes
 const ENOMEM = Cint(12)  # Out of memory error code
 const EINVAL = Cint(22)  # Invalid argument error code
