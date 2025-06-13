@@ -6,6 +6,10 @@ using Base: Libc
 
 # define CACHE_LINE_SIZE as a module scoped constant
 include("precompilation.jl")
+if !isdefined(Main, CACHE_LINE_SIZE)
+   const CACHE_LINE_SIZE = FallbackCacheLineSize
+end
+
 
 # allocation error codes
 const ENOMEM = Cint(12)  # Out of memory error code
