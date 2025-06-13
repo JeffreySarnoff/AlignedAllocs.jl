@@ -109,12 +109,12 @@ function get_l1_cache_line_size_windows()::Int
 
     return FallbackCacheLineSize  # Fallback value.
 end
-
+#=
 @setup_workload CACHE_LINE_SIZE = begin
     detect_cache_line_size()
 end
-
-const CACHE_LINE_SIZE = AlignedAllocs.detect_cache_line_size()
+=#
+const CACHE_LINE_SIZE = detect_cache_line_size()
 # allocation error codes
 const ENOMEM = Cint(12)  # Out of memory error code
 const EINVAL = Cint(22)  # Invalid argument error code
