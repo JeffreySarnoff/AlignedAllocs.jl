@@ -7,7 +7,7 @@
 using PrecompileTools
 
 # Top-Level Constants and (Optional) Struct Declarations
-# FallbackCacheLineSize = 22
+FallbackCacheLineSize = detect_cache_line_size()  # Default fallback value for cache line size.
 
 # Linux: sysconf constant for L1 data cache line size.
 const _SC_LEVEL1_DCACHE_LINESIZE = 190  # defined in <unistd.h>
