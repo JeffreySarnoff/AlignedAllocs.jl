@@ -1,13 +1,7 @@
-#=
-   note:
-   Some of this is the result of many iterations and refinements of multiple ai tools
-   working on each other's output, each iteration guided by my directions. Some is not.
-=#
-
 using PrecompileTools
 
 # Top-Level Constants and (Optional) Struct Declarations
-const FallbackCacheLineSize = 64  # Default fallback value for cache line size.
+const FallbackCacheLineSize = 64
 
 # Top-Level Constants and (Optional) Struct Declarations
 
@@ -16,6 +10,7 @@ const _SC_LEVEL1_DCACHE_LINESIZE = 190  # defined in <unistd.h>
 
 # Windows: Constants for cache relationship and cache types.
 const RELATION_CACHE = 2
+#=
 const CACHE_TYPE_DATA = 1
 const CACHE_TYPE_INSTRUCTION = 2
 const CACHE_TYPE_UNIFIED = 3
@@ -36,6 +31,8 @@ else
     const LINE_SIZE_OFFSET    = UNION_OFFSET + 2   # LineSize is at offset 10.
     const CACHE_TYPE_OFFSET   = UNION_OFFSET + 8   # Type is at offset 16.
 end
+=#
+
 
 # Main function to retrieve the cache line size.
 function detect_cache_line_size()::Int
@@ -110,6 +107,9 @@ function get_l1_cache_line_size_windows()::Int
     return FallbackCacheLineSize  # Fallback value.
 end
 
-@setup_workload CACHE_LINE_SIZE = begin
-    detect_cache_line_size()
+@setup_workload begin
+    @compile_workload begin
+    # Execute the cache line size detection during precompilation
+       global const CACHE_LINE_SIZE = detect_cache_line_size()
+    end
 end
