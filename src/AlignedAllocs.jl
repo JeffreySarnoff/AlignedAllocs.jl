@@ -3,6 +3,7 @@ module AlignedAllocs
 export memalign, memalign_clear, alignment
 
 using Base: Libc
+using PrecompileTools
 
 # define CACHE_LINE_SIZE as a module scoped constant
 include("precompilation.jl")

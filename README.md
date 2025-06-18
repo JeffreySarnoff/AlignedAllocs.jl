@@ -8,15 +8,16 @@
 
 ### exports
 
-- `memalign(item_type, item_count, byte_alignment)`
-  - returns an uninitialized DenseVector{T} of length `item_count`
-  - T is a bitstype
+- `memalign(T, item_count, byte_alignment)`
+  - returns an uninitialized DenseVector{T} of length `item_count` aligned to `byte_alignment` bytes
+  - `T` is a bitstype
   
-- `memalign_clear(item_type, item_count, byte_alignment)`
-  - returns a zeroed DenseVector{T} of length `item_count`
-  - T is a bitstype (ensure `zero(T)` exists)
+- `memalign_clear(T, item_count, byte_alignment)`
+  - returns a zeroed DenseVector{T} of length `item_count` aligned to `byte_alignment` bytes
+  - `T` is a bitstype (ensure `zero(T)` exists)
 
-- `byte_alignment` defaults to the local processor's cache-line size
+- `alignment(vector)`
+  - returns the byte alignment of the vector
 
 ### why it matters
 
