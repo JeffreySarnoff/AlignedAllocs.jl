@@ -1,7 +1,7 @@
 name = "AlignedAllocs"
 author = "Jeffrey Sarnoff <jeffrey.sarnoff@gmail.com>"
 uuid = "6ac60441-711f-43f0-8178-7f71f0888134"
-version = "0.1.10"
+version = "0.1.11"
 
 [deps]
 PrecompileTools ="aea7be01-6a6a-4083-8856-8a6e6704d82a"
