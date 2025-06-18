@@ -106,10 +106,10 @@ function memalign_windows(::Type{T}, nitems::Integer, alignment::Integer) where 
     vec = @GC.preserve ptr unsafe_wrap(Array, Ptr{T}(ptr), nitems; own=false)
     
     # allow the GC to free the allocated memory
-    finalizer(vec) do _
-        @GC.preserve ptr ccall((:_aligned_free, "msvcrt"), Cvoid, (Ptr{T},), ptr)
-    end
-    
+    finalizer(vec.ref.mem) do m
+       GC.@preserve ccall((:_aligned_free, "msvcrt"), Cvoid, (Ptr{T},), pointer(m))
+    end    
+
     return vec
 end
 
