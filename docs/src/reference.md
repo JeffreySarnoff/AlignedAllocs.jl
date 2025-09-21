@@ -31,7 +31,7 @@ The following helpers are useful when extending the package to other platforms o
 Keep a Julia reference alive while passing pointers to C:
 ```julia
 function call_c(ptr, len)
-    ccall((:process, libfoo), Cvoid, (Ptr{Float32}, Csize_t), ptr, len)
+    ccall((:process, clibrary), Cvoid, (Ptr{Float32}, Csize_t), ptr, len)
 end
 
 xs = memalign(Float32, 256, 64)
