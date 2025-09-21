@@ -38,5 +38,3 @@ julia> xs = memalign(Float32, 128)
 julia> ys = memalign_clear(Float64, 16; align=256) 
 # 16 Float64s, zeroed, aligned to 256 (or larger) byte boundry
 ```
-
-Head over to the [User Guide](guide.md) for practical allocation patterns, or jump straight to the [API Reference](reference.md) when you need detailed signatures.
