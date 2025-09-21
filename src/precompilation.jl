@@ -18,7 +18,7 @@ const _SC_LEVEL1_DCACHE_LINESIZE = 190  # defined in <unistd.h>
             return FallbackCacheLineSize
         end
 
-        buffer = Vector{UInt8}(undef, bufsize[])
+        buffer = Base.Vector{UInt8}(undef, bufsize[])
         ret = ccall((:GetLogicalProcessorInformationEx, "kernel32"),
                     Cint, (Cint, Ptr{UInt8}, Ptr{UInt32}),
                     RELATION_CACHE, buffer, bufsize)
@@ -84,3 +84,4 @@ const CACHE_LINE_SIZE = let size = try
     end
     size > 0 ? size : FallbackCacheLineSize
 end
+
