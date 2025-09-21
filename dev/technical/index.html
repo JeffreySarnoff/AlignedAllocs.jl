@@ -21,38 +21,4 @@
   # Keep `storage` in scope so the memory remains valid.
   @assert all(vec -&gt; alignment(vec) ≥ ALIGN, vectors)
 
-  #  vectors now holds four contiguous, 64-byte-aligned FixedSizeVectors backed by the single aligned storage allocation.</code></pre><p>How can I get 5 contiguous vectors of 4 Float32 values, each aligned to 128 bytes?</p><p>A single aligned buffer plus some padding between slices does the trick. </p><ul><li>Each 4×Float32 vector consumes 16 bytes</li><li>to keep every start address on a 128‑byte boundary<ul><li>we allow STRIDE = 128 ÷ sizeof(Float32) = 32 elements between them.</li></ul></li></ul><pre><code class="nohighlight hljs">
-  using AlignedAllocs
-  using FixedSizeArrays
-
-  const ALIGN  = 128
-  const VLEN   = 4                 # elements per fixed vector
-  const COUNT  = 5                 # how many vectors
-  const STRIDE = ALIGN ÷ sizeof(Float32)  # elements between start addresses
-
-  storage = memalign(Float32, STRIDE * COUNT; align = ALIGN)
-
-  vectors = GC.@preserve storage begin
-      baseptr = Base.unsafe_convert(Ptr{Float32}, storage)
-      ntuple(COUNT) do i
-          ptr   = baseptr + (i-1) * STRIDE * sizeof(Float32)
-          chunk = Base.unsafe_wrap(Vector{Float32}, ptr, VLEN; own = false)
-          FixedSizeArrays.new_fixed_size_array(chunk, (VLEN,))
-      end
-  end
-
-  @assert all(v -&gt; alignment(v) ≥ ALIGN, vectors)
-
-  vectors is an NTuple{5, FixedSizeVector{Float32}}, each sharing the same underlying buffer but starting 128 bytes
-  apart. Keep storage alive for as long as you use the fixed-size views.
-  ```
-  
-  Alternatively, use memalign_fixed to allocate a fixed-size matrix:
-  - block is a (LEN × 4) fixed-size matrix whose parent buffer is 64‑byte aligned.
-  - FixedSizeArray[:,1],..,FixedSizeArray[:,4] exposes the four contiguous column vectors without extra allocations,
-  - so you get a sequence of four fixed-size vectors backed by the same aligned block. 
-  - Adjust LEN or the element type as required.
-
-
-## Interacting With External Code
-Keep a Julia reference alive while passing pointers to C:</code></pre><p>julia function call<em>c(ptr, len)     ccall((:process, clibrary), Cvoid, (Ptr{Float32}, Csize</em>t), ptr, len) end</p><p>T = Float32 nitems = 64 nbytes = nitems * sizeof(T)</p><p>xs = memalign(Float32, nitems; align=min(256, nbytes)) GC.@preserve xs begin     call_c(pointer(xs), length(xs)) end ```</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../reference/">« API Reference</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Sunday 21 September 2025 13:23">Sunday 21 September 2025</span>. Using Julia version 1.11.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+  #  vectors now holds four contiguous, 64-byte-aligned FixedSizeVectors backed by the single aligned storage allocation.</code></pre><p>How can I get 5 contiguous vectors of 4 Float32 values, each aligned to 128 bytes?</p><p>A single aligned buffer plus some padding between slices does the trick. </p><ul><li>Each 4×Float32 vector consumes 16 bytes</li><li>to keep every start address on a 128‑byte boundary<ul><li>we allow STRIDE = 128 ÷ sizeof(Float32) = 32 elements between them.</li></ul></li></ul><p>```</p><p>using AlignedAllocs   using FixedSizeArrays</p><p>const ALIGN  = 128   const VLEN   = 4                 # elements per fixed vector   const COUNT  = 5                 # how many vectors   const STRIDE = ALIGN ÷ sizeof(Float32)  # elements between start addresses</p><p>storage = memalign(Float32, STRIDE * COUNT; align = ALIGN)</p><p>vectors = GC.@preserve storage begin       baseptr = Base.unsafe<em>convert(Ptr{Float32}, storage)       ntuple(COUNT) do i           ptr   = baseptr + (i-1) * STRIDE * sizeof(Float32)           chunk = Base.unsafe</em>wrap(Vector{Float32}, ptr, VLEN; own = false)           FixedSizeArrays.new<em>fixed</em>size_array(chunk, (VLEN,))       end   end</p><p>@assert all(v -&gt; alignment(v) ≥ ALIGN, vectors)</p><p>vectors is an NTuple{5, FixedSizeVector{Float32}}, each sharing the same underlying buffer but starting 128 bytes   apart. Keep storage alive for as long as you use the fixed-size views.   ```</p><p>Alternatively, use memalign_fixed to allocate a fixed-size matrix:</p><ul><li>block is a (LEN × 4) fixed-size matrix whose parent buffer is 64‑byte aligned.</li><li>FixedSizeArray[:,1],..,FixedSizeArray[:,4] exposes the four contiguous column vectors without extra allocations,</li><li>so you get a sequence of four fixed-size vectors backed by the same aligned block. </li><li>Adjust LEN or the element type as required.</li></ul></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../reference/">« API Reference</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Sunday 21 September 2025 13:30">Sunday 21 September 2025</span>. Using Julia version 1.11.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
