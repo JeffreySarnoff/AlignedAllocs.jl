@@ -43,7 +43,7 @@ Allocate aligned storage for `nitems` elements of type `T`, zero-initialize it, 
     vect = memalign(T, nitems, align)
     Base.GC.@preserve vect begin
         nbytes = Int(_nbytes(T, nitems))
-        memzero!(Base.unsafe_convert(Ptr{UInt8}, Base.pointer(vect)), 0x00, nbytes)
+        Base.memset(Base.unsafe_convert(Ptr{UInt8}, Base.pointer(vect)), 0x00, nbytes)
     end
     return vect
 end
