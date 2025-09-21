@@ -25,7 +25,3 @@ The following helpers are useful when extending the package to other platforms o
 - `confirm_alignment(ptr::Ptr, align::Integer)`
 - `alloc_error(err)`
 
-```@autodocs
-Modules = [AlignedAllocs]
-Private = false
-```
