@@ -2,7 +2,7 @@
 CurrentModule = AlignedAllocs
 ```
 
-# Welcome to AlignedAllocs.jl
+# AlignedAllocs.jl
 
 #### All allocations use the new Memory infrastructure.
 

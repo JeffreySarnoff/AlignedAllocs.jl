@@ -2,7 +2,7 @@
 CurrentModule = AlignedAllocs
 ```
 
-# API Reference
+# Reference
 
 ## Constants
 - `CACHE_LINE_SIZE::Int`: L1 cache line size detected at load time, falling back to `FallbackCacheLineSize`.

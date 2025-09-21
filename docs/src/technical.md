@@ -2,7 +2,7 @@
 CurrentModule = AlignedAllocs
 ```
 
-# Technical Notes
+# Tech Notes
 
 ## All Vector methods are supported
 
