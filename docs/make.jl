@@ -9,6 +9,7 @@ DocMeta.setdocmeta!(AlignedAllocs, :DocTestSetup, :(using AlignedAllocs); recurs
 
 makedocs(
     sitename = "AlignedAllocs.jl",
+    author = "Jeffrey Sarnoff",
     modules = [AlignedAllocs],
     format = Documenter.HTML(),
     strict = true,
@@ -22,4 +23,5 @@ makedocs(
 deploydocs(
     repo = "github.com/JeffreySarnoff/AlignedAllocs.jl",
     devbranch = "main",
+    target = "build",
 )
