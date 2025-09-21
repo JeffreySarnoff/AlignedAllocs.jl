@@ -1,5 +1,6 @@
 using Test
 using AlignedAllocs
+using FixedSizeArrays
 
 const TEST_ALIGNMENT = 64
 
@@ -88,9 +89,50 @@ end
     @test alignment(vect) >= align
 end
 
+@testset "Multi-dimensional aligned allocations" begin
+    arr = memaligned(UInt16, 4, 8; align = TEST_ALIGNMENT)
+    @test size(arr) == (4, 8)
+    @test eltype(arr) == UInt16
+    @test alignment(arr) >= TEST_ALIGNMENT
+
+    arr .= UInt16(5)
+    flat = vec(arr)
+    @test all(==(UInt16(5)), flat)
+
+    cleared = memaligned_clear(Float32, (2, 3, 4))
+    @test size(cleared) == (2, 3, 4)
+    @test all(iszero, cleared)
+
+    @test_throws ArgumentError memaligned(Float32, 4, 0)
+    @test_throws OverflowError memaligned(UInt8, typemax(Int), 2)
+end
+
 @testset "Alignment on empty arrays" begin
     empty_vec = Vector{Float64}(undef, 0)
     value = alignment(empty_vec)
     @test value >= 0
     @test Base.ispow2(value) || value == 0
+end
+
+
+@testset "Fixed-size aligned allocations" begin
+    fs = memalign_fixed(Float64, 4, 4; align = TEST_ALIGNMENT)
+    @test fs isa FixedSizeArrays.FixedSizeMatrix{Float64}
+    @test size(fs) == (4, 4)
+    @test alignment(fs) >= TEST_ALIGNMENT
+
+    parent_vec = FixedSizeArrays.parent(fs)
+    @test pointer(parent_vec) == pointer(fs)
+    parent_vec .= 1.25
+    @test all(fs .== 1.25)
+
+    cleared = memalign_clear_fixed(UInt8, 8; align = TEST_ALIGNMENT)
+    @test cleared isa FixedSizeArrays.FixedSizeVector{UInt8}
+    @test all(iszero, cleared)
+
+    tupled = memalign_fixed(Float32, (2, 3, 4))
+    @test size(tupled) == (2, 3, 4)
+
+    @test_throws ArgumentError memalign_fixed(Float32, 0)
+    @test_throws OverflowError memalign_fixed(UInt8, typemax(Int), 2)
 end

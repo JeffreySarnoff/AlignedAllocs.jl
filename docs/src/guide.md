@@ -11,7 +11,7 @@ pkg> add AlignedAllocs
 AlignedAllocs.jl targets Julia 1.11 or newer. Installing the package also brings in `PrecompileTools`, which precompiles cache line detection to keep load times minimal.
 
 ## Allocating Aligned Buffers
-The core API exposes two constructors:
+The core allocation API exposes two constructors:
 
 ```julia
 xs = memalign(Float32, 256)                  # default cache-line alignment
@@ -28,6 +28,36 @@ Use `alignment(xs)` to confirm the pointer boundary:
 ```
 
 The alignment helper returns the largest power of two dividing the buffer's data pointer. Empty arrays may report `0`.
+
+## Multi-dimensional Arrays
+
+Call `memaligned` to request aligned storage for dense matrices or higher-dimensional arrays without losing ownership semantics.
+```julia
+az = memaligned(Float32, 32, 8; align=128)
+@assert size(az) == (32, 8)
+@assert alignment(az) >= 128
+
+bz = memaligned_clear(Float64, (4, 4, 4))
+@assert all(iszero, bz)
+```
+
+Use tuple arguments or variadic dimensions interchangeably. The result is a reshaped view of the underlying aligned vector, so broadcasting and mutation preserve the pointer guarantee.
+
+## Fixed-Size Arrays
+
+When you need a compile-time shape along with pointer guarantees, combine the package with `FixedSizeArrays.jl` and allocate aligned buffers directly via the fixed helpers.
+```julia
+using FixedSizeArrays
+
+fs = memalign_fixed(Float32, 4, 4; align=128)
+@assert fs isa FixedSizeArrays.FixedSizeMatrix{Float32}
+@assert alignment(fs) >= 128
+
+parent_vec = FixedSizeArrays.parent(fs)
+@assert pointer(parent_vec) == pointer(fs)
+```
+
+Call `memalign_clear_fixed` when you need the storage zeroed before wrapping it. Both constructors accept either variadic dimensions or a single tuple, mirroring the `FixedSizeArrays` API. The `alignment` helper works on the returned arrays because the dense backing store remains available through `parent`.
 
 ## Choosing an Alignment
 - Keep the default for cache sensitive SIMD code paths.
@@ -63,8 +93,8 @@ Aligned vectors behave like standard arrays. Resizing may reallocate and thus ch
 Query `alignment(xs)` again when the exact boundary matters after operations such as `resize!`, `append!`, or `push!`.
 
 ## Troubleshooting
-- `ArgumentError: Alignment ... must be 2^p where p >= 4` → use a power of two ≥ 16 (e.g. `32`, `64`, `128`).
-- `OutOfMemoryError` → confirm the element count and consider chunked processing.
-- Zeroed buffer still shows stale data → ensure the consumer reads from the returned vector, not a previously cached pointer.
+- `ArgumentError: Alignment ... must be 2^p where p >= 4` -> use a power of two >= 16 (for example `32`, `64`, `128`).
+- `OutOfMemoryError` -> confirm the element count and consider chunked processing.
+- Zeroed buffer still shows stale data -> ensure the consumer reads from the returned vector, not a previously cached pointer.
 
 Continue to the [API Reference](reference.md) for function signatures and details.

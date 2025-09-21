@@ -12,6 +12,8 @@ AlignedAllocs.jl provides fast, cache aware allocations for Julia vectors that b
 ## Highlights
 - Aligned vectors for POSIX (Mac, Linux) and Windows platforms.
 - All allocated vectors are garbage collected.
+- Multi-dimensional arrays via `memaligned` and `memaligned_clear`.
+- Fixed-size array integration via `memalign_fixed`/`memalign_clear_fixed` and `FixedSizeArrays.jl`.
 - Zeroed allocations with `memalign_clear` for safer initialization.
 - Inspect using `alignment` to confirm pointer boundaries.
 - Portable cache line size detection with graceful fallbacks.
