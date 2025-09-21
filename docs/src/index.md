@@ -19,6 +19,7 @@ AlignedAllocs.jl provides fast, cache aware allocations for Julia vectors that b
 Pages = [
     "guide.md",
     "reference.md",
+    "technical.md",
 ]
 Depth = 1
 ```
