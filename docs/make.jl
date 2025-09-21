@@ -2,7 +2,7 @@ using Documenter, AlignedAllocs
 
 makedocs(
     modules = [AlignedAllocs],
-    sitename = "AlignedAllocss.jl",
+    sitename = "AlignedAllocs.jl",
     authors = "Jeffrey Sarnoff",
     pages = [
         "Home" => "index.md",
