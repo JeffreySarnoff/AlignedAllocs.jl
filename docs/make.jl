@@ -17,6 +17,7 @@ makedocs(
         "Home" => "index.md",
         "User Guide" => "guide.md",
         "API Reference" => "reference.md",
+        "Technical Notes" => "technical.md",
     ],
     checkdocs = :none,
     linkcheck = true,
