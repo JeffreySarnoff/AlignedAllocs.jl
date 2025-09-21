@@ -6,9 +6,9 @@
 Deterministic aligned allocations for Julia. AlignedAllocs.jl wraps platform-specific primitives such as `posix_memalign` and `_aligned_malloc` in a small, type-stable API that returns owning `Vector`s with guaranteed byte alignment.
 
 ## Features
-- Portable cache-line detection with a safe fallback when probing fails.
-- `memalign` and `memalign_clear` helpers for uninitialised and zeroed buffers.
+- `memalign` and `memalign_clear` for allocating aligned Vector{T}, uninitialized or zeroed.
 - `alignment(::AbstractArray)` utility to verify pointer boundaries at runtime.
+- Portable cache-line size detection with a safe fallback when probing fails.
 - Precompilation of cache-line detection via `PrecompileTools` for fast start-up.
 
 ## Installation

@@ -4,7 +4,9 @@ CurrentModule = AlignedAllocs
 
 # Welcome to AlignedAllocs.jl
 
-AlignedAllocs.jl provides fast, cache aware allocation helpers for Julia arrays that need deterministic alignment. The package wraps platform specific memory allocation primitives in a small, type stable API. The allocated memory is of built-in type Vector{T} where T is the type passed to the allocation function.  **All** allocations use *the new Memory infrastructure*.
+AlignedAllocs.jl provides fast, cache aware allocation helpers for Julia arrays that need deterministic alignment. The package wraps platform specific memory allocation primitives in a small, type stable API. The allocated memory is of built-in type Vector{T} where T is the type passed to the allocation function.
+
+*All* allocations use the new Memory infrastructure.
 
 ## Highlights
 - Portable cache line detection with graceful fallbacks.
