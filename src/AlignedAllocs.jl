@@ -1,6 +1,7 @@
 module AlignedAllocs
 
-export memalign, memalign_clear, memaligned, memaligned_clear, memalign_fixed, memalign_clear_fixed, alignment, FixedAlignedAllocs
+export memalign, memalign_clear, memalign_fixed, memalign_clear_fixed, memalign_vectors,
+       memaligned, memaligned_clear, alignment, FixedAlignedAllocs
 
 using Base: Libc
 using PrecompileTools
