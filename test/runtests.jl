@@ -81,7 +81,7 @@ end
 
 @testset "Large alignments" begin
     align = 512
-    vect = memalign(UInt64, 4, align)
+    vect = memalign(UInt64, 4; align)
     @test length(vect) == 4
     addr = UInt(pointer(vect))
     @test addr % align == 0
