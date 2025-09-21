@@ -9,7 +9,8 @@ CurrentModule = AlignedAllocs
 - `FallbackCacheLineSize::Int`: Static fallback alignment (64 bytes).
 
 ## Public Functions
-- `alignment(xs::AbstractArray) -> Int`: Largest power-of-two alignment dividing the array's data pointer. Returns `0` for empty arrays.
+- `alignment(xs::AbstractArray) -> Int`: Largest power-of-two alignment dividing the array's data pointer.
+- `alignment(xs) Returns `0` for empty arrays.
 
 ```@docs
 memalign
