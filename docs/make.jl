@@ -1,4 +1,4 @@
-using Documenter, AlignedAllocs
+using Documenter
 
 makedocs(
     modules = [AlignedAllocs],
