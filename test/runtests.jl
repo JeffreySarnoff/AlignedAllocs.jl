@@ -4,7 +4,7 @@ using AlignedAllocs
 const TEST_ALIGNMENT = 64
 
 @testset "memalign returns aligned storage" begin
-    vect = memalign(Float64, 32, TEST_ALIGNMENT)
+    vect = memalign(Float64, 32; align =TEST_ALIGNMENT)
     @test length(vect) == 32
     addr = UInt(pointer(vect))
     @test addr % TEST_ALIGNMENT == 0
@@ -14,7 +14,7 @@ const TEST_ALIGNMENT = 64
 end
 
 @testset "memalign_clear zero-initializes" begin
-    vect = memalign_clear(UInt16, 48, TEST_ALIGNMENT)
+    vect = memalign_clear(UInt16, 48; align = TEST_ALIGNMENT)
     @test length(vect) == 48
     @test all(iszero, vect)
     addr = UInt(pointer(vect))
@@ -30,12 +30,12 @@ end
 end
 
 @testset "Argument validation" begin
-    @test_throws ArgumentError memalign(UInt64, 0, TEST_ALIGNMENT)
-    @test_throws ArgumentError memalign(UInt64, -5, TEST_ALIGNMENT)
-    @test_throws ArgumentError memalign(UInt64, 8, 24)
-    @test_throws ArgumentError memalign(UInt64, 8, 8)
-    @test_throws ArgumentError memalign(String, 4, TEST_ALIGNMENT)
-    @test_throws OverflowError memalign(Float64, typemax(Int), TEST_ALIGNMENT)
+    @test_throws ArgumentError memalign(UInt64, 0; align = TEST_ALIGNMENT)
+    @test_throws ArgumentError memalign(UInt64, -5; align = TEST_ALIGNMENT)
+    @test_throws ArgumentError memalign(UInt64, 8; align = 24)
+    @test_throws ArgumentError memalign(UInt64, 8; align = 8)
+    @test_throws ArgumentError memalign(String, 4; align = TEST_ALIGNMENT)
+    @test_throws OverflowError memalign(Float64, typemax(Int); align = TEST_ALIGNMENT)
 end
 
 @testset "alignment helper" begin
@@ -48,11 +48,11 @@ end
 
 
 @testset "Helper predicates" begin
-    @test AlignedAllocs._valid_alignment(16)
-    @test AlignedAllocs._valid_alignment(256)
-    @test !AlignedAllocs._valid_alignment(0)
-    @test !AlignedAllocs._valid_alignment(18)
-    @test !AlignedAllocs._valid_alignment(-32)
+    @test AlignedAllocs.is_alignment_valid(16)
+    @test AlignedAllocs.is_alignment_valid(256)
+    @test !AlignedAllocs.is_alignment_valid(0)
+    @test !AlignedAllocs.is_alignment_valid(18)
+    @test !AlignedAllocs.is_alignment_valid(-32)
 end
 
 @testset "check_args validation" begin
@@ -70,11 +70,11 @@ end
     @test occursin("99", err.value.msg)
 end
 
-@testset "_memzero! zeroes buffers" begin
+@testset "zeromem zeroes buffers" begin
     buffer = fill(UInt8(0xff), 32)
     GC.@preserve buffer begin
         ptr = Base.unsafe_convert(Ptr{UInt8}, Base.pointer(buffer))
-        AlignedAllocs._memzero!(ptr, length(buffer))
+        AlignedAllocs.zeromem(ptr, length(buffer))
     end
     @test all(iszero, buffer)
 end

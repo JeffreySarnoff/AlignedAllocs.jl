@@ -14,9 +14,9 @@ AlignedAllocs.jl targets Julia 1.11 or newer. Installing the package also brings
 The core API exposes two constructors:
 
 ```julia
-xs = memalign(Float32, 256)            # default cache-line alignment
-ys = memalign(UInt8, 1024, 256)        # explicit 256-byte alignment
-zs = memalign_clear(UInt16, 128, 128)  # aligned and zeroed
+xs = memalign(Float32, 256)                  # default cache-line alignment
+ys = memalign(UInt8, 1024; align=256)        # explicit 256-byte alignment
+zs = memalign_clear(UInt16, 128; align=128)  # aligned and zeroed
 ```
 
 The `align` argument must be a power of two of at least 16 bytes. When omitted the detected `CACHE_LINE_SIZE` is used.
@@ -24,8 +24,7 @@ The `align` argument must be a power of two of at least 16 bytes. When omitted t
 ### Verifying Alignment
 Use `alignment(xs)` to confirm the pointer boundary:
 ```julia
-ptr_align = alignment(xs)
-@assert ptr_align >= CACHE_LINE_SIZE
+@assert alignment(xs) >= CACHE_LINE_SIZE
 ```
 
 The alignment helper returns the largest power of two dividing the buffer's data pointer. Empty arrays may report `0`.
@@ -37,7 +36,7 @@ The alignment helper returns the largest power of two dividing the buffer's data
 
 ## Memory Ownership Semantics
 Platform behavior is consistent across releases:
-- **POSIX**: `memalign` wraps `posix_memalign` and returns an owning `Vector` (`own=true`).
+- **Posix**: `memalign` wraps `posix_memalign` and returns an owning `Vector` (`own=true`).
 - **Windows**: `memalign` uses `_aligned_malloc`; the returned vector installs a finalizer that calls `_aligned_free`.
 - **Zeroed allocations**: `memalign_clear` preserves the vector then clears memory via `Base.memset`.
 
@@ -53,26 +52,12 @@ Platform behavior is consistent across releases:
 Wrap allocations in a `try/catch` if you need to recover gracefully:
 ```julia
 try
-    buf = memalign(Float32, 1_000_000_000, 128)
+    buf = memalign(Float32, 1_000_000_000; align=128)
 catch err
     @warn "Falling back to smaller buffer" err
-    buf = memalign(Float32, 10_000, 128)
+    buf = memalign(Float32, 10_000; align=128)
 end
 ```
-
-## Interacting With External Code
-Keep a Julia reference alive while passing pointers to C:
-```julia
-function call_c(ptr, len)
-    ccall((:process, libfoo), Cvoid, (Ptr{Float32}, Csize_t), ptr, len)
-end
-
-xs = memalign(Float32, 256, 64)
-GC.@preserve xs begin
-    call_c(pointer(xs), length(xs))
-end
-```
-
 ## Resizing and Mutation
 Aligned vectors behave like standard arrays. Resizing may reallocate and thus change the alignment. Query `alignment(xs)` again when the exact boundary matters after operations such as `resize!`, `append!`, or `push!`.
 

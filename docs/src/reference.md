@@ -19,9 +19,23 @@ memalign_clear
 ## Supporting Internals
 The following helpers are useful when extending the package to other platforms or writing integration tests.
 
-- `_valid_alignment(align::Integer) -> Bool`
+- `is_alignment_valid(align::Integer) -> Bool`
 - `check_args(::Type{T}, nitems::Integer, align::Integer)`
-- `_memzero!(ptr::Ptr{UInt8}, nbytes::Int)`
+- `zeromem(ptr::Ptr{UInt8}, nbytes::Int)`
 - `confirm_alignment(ptr::Ptr, align::Integer)`
 - `alloc_error(err)`
 
+# Technical Notes
+
+## Interacting With External Code
+Keep a Julia reference alive while passing pointers to C:
+```julia
+function call_c(ptr, len)
+    ccall((:process, libfoo), Cvoid, (Ptr{Float32}, Csize_t), ptr, len)
+end
+
+xs = memalign(Float32, 256, 64)
+GC.@preserve xs begin
+    call_c(pointer(xs), length(xs))
+end
+```

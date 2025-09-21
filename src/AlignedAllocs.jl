@@ -29,7 +29,7 @@ end
 Allocate aligned storage for `nitems` elements of type `T` and return a `Vector{T}` whose data pointer is aligned to `align` bytes. `align` must be a power of two at least 16.
 """ memalign
 
-@inline function memalign(::Type{T}, nitems::Integer, align::Integer=CACHE_LINE_SIZE) where T
+@inline function memalign(::Type{T}, nitems::Integer; align::Integer=CACHE_LINE_SIZE) where T
     @static Sys.iswindows() ? memalign_windows(T, nitems, align) : memalign_posix(T, nitems, align)
 end
 
@@ -39,11 +39,12 @@ end
 Allocate aligned storage for `nitems` elements of type `T`, zero-initialize it, and return a `Vector{T}`.
 """ memalign_clear
 
-@inline function memalign_clear(::Type{T}, nitems::Integer, align::Integer=CACHE_LINE_SIZE) where T
-    vect = memalign(T, nitems, align)
+@inline function memalign_clear(::Type{T}, nitems::Integer; align::Integer=CACHE_LINE_SIZE) where T
+    vect = memalign(T, nitems; align)
     Base.GC.@preserve vect begin
         nbytes = Int(_nbytes(T, nitems))
-        Base.memset(Base.unsafe_convert(Ptr{UInt8}, Base.pointer(vect)), 0x00, nbytes)
+        ptr = Base.unsafe_convert(Ptr{UInt8}, Base.pointer(vect))
+        zeromem(ptr, nbytes)
     end
     return vect
 end
@@ -90,16 +91,16 @@ end
 @inline function check_args(::Type{T}, nitems::Integer, align::Integer) where T
     isbitstype(T) || throw(ArgumentError("element_type ($T) must be a `bitstype`"))
     nitems > 0 || throw(ArgumentError("element_count ($nitems) must be > 0"))
-    _valid_alignment(align) || throw(ArgumentError("Alignment ($align) must be 2^p where p >= 4"))
+    is_alignment_valid(align) || throw(ArgumentError("Alignment ($align) must be 2^p where p >= 4"))
     return nothing
 end
 
-@inline function _memzero!(ptr::Ptr{UInt8}, nbytes::Int)
+@inline function zeromem(ptr::Ptr{UInt8}, nbytes::Int)
     Base.memset(ptr, 0x00, nbytes)
     return nothing
 end
 
-@inline _valid_alignment(align::Integer) = align >= 16 && ((align - 1) & align) == 0
+@inline is_alignment_valid(align::Integer) = align >= 16 && ((align - 1) & align) == 0
 
 @inline function confirm_alignment(ptr::Ptr, align::Integer)
     mask = UInt(align - 1)
