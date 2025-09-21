@@ -2,14 +2,58 @@ using PrecompileTools
 
 const FallbackCacheLineSize = 64
 
-# Linux: sysconf constant for L1 data cache line size.
 const _SC_LEVEL1_DCACHE_LINESIZE = 190  # defined in <unistd.h>
 
-# Windows: relationship identifier used by GetLogicalProcessorInformationEx.
-const RELATION_CACHE = 2
+@static if Sys.iswindows()
+    const RELATION_CACHE = 2  # LOGICAL_PROCESSOR_RELATIONSHIP.RelationCache
 
-function detect_cache_line_size()::Int
-    if Sys.isapple()
+    function _windows_cache_line_size()::Int
+        bufsize = Ref{UInt32}(0)
+        ccall((:GetLogicalProcessorInformationEx, "kernel32"),
+              Cint, (Cint, Ptr{Cvoid}, Ptr{UInt32}),
+              RELATION_CACHE, C_NULL, bufsize)
+
+        if bufsize[] == 0
+            @warn "GetLogicalProcessorInformationEx returned zero buffer size; using fallback cache line size."
+            return FallbackCacheLineSize
+        end
+
+        buffer = Vector{UInt8}(undef, bufsize[])
+        ret = ccall((:GetLogicalProcessorInformationEx, "kernel32"),
+                    Cint, (Cint, Ptr{UInt8}, Ptr{UInt32}),
+                    RELATION_CACHE, buffer, bufsize)
+        if ret == 0
+            @warn "GetLogicalProcessorInformationEx failed; using fallback cache line size." ret
+            return FallbackCacheLineSize
+        end
+
+        GC.@preserve buffer begin
+            base_ptr = pointer(buffer)
+            offset = 0
+            limit = Int(bufsize[])
+            while offset < limit
+                entry_size = Int(unsafe_load(Ptr{UInt32}(base_ptr + offset + 4)))
+                if entry_size <= 0
+                    break
+                end
+
+                level = unsafe_load(Ptr{UInt8}(base_ptr + offset + 8))
+                if level == 1
+                    line_size = unsafe_load(Ptr{UInt16}(base_ptr + offset + 10))
+                    return Int(line_size)
+                end
+
+                offset += entry_size
+            end
+        end
+
+        @warn "No L1 cache information found; using fallback cache line size."
+        return FallbackCacheLineSize
+    end
+end
+
+@inline function _detect_cache_line_size()::Int
+    @static if Sys.isapple()
         line_size = Ref{Cuint}(0)
         size_ref = Ref{Csize_t}(sizeof(Cuint))
         ret = ccall(:sysctlbyname, Cint,
@@ -20,62 +64,23 @@ function detect_cache_line_size()::Int
         line_size = ccall(:sysconf, Clong, (Cint,), _SC_LEVEL1_DCACHE_LINESIZE)
         return line_size > 0 ? Int(line_size) : FallbackCacheLineSize
     elseif Sys.iswindows()
-        return get_l1_cache_line_size_windows()
+        return _windows_cache_line_size()
     else
         return FallbackCacheLineSize
     end
 end
 
-function get_l1_cache_line_size_windows()::Int
-    bufsize = Ref{UInt32}(0)
-    ret = ccall((:GetLogicalProcessorInformationEx, "kernel32"),
-                Cint, (Cint, Ptr{Cvoid}, Ptr{UInt32}),
-                RELATION_CACHE, C_NULL, bufsize)
-    if bufsize[] == 0
-        @warn "GetLogicalProcessorInformationEx returned zero buffer size; using fallback cache line size." ret
-        return FallbackCacheLineSize
-    end
-
-    buffer = Vector{UInt8}(undef, bufsize[])
-    ret = ccall((:GetLogicalProcessorInformationEx, "kernel32"),
-                Cint, (Cint, Ptr{UInt8}, Ptr{UInt32}),
-                RELATION_CACHE, buffer, bufsize)
-    if ret == 0
-        @warn "GetLogicalProcessorInformationEx failed; using fallback cache line size." ret
-        return FallbackCacheLineSize
-    end
-
-    ptr = pointer(buffer)
-    offset = 0
-    total_size = bufsize[]
-    while offset < total_size
-        entry_size = unsafe_load(Ptr{UInt32}(ptr + offset + 4))
-        level = unsafe_load(Ptr{UInt8}(ptr + offset + 8))
-        if level == 1
-            line_size = unsafe_load(Ptr{UInt16}(ptr + offset + 10))
-            return Int(line_size)
-        end
-        offset += entry_size
-    end
-
-    @warn "No L1 cache information found; using fallback cache line size."
-    return FallbackCacheLineSize
-end
-
-function _compute_cache_line_size()::Int
-    size = detect_cache_line_size()
-    return size > 0 ? size : FallbackCacheLineSize
-end
-
 @setup_workload begin
     @compile_workload begin
-        detect_cache_line_size()
+        _detect_cache_line_size()
     end
 end
 
-const CACHE_LINE_SIZE = try
-    _compute_cache_line_size()
-catch err
-    @warn "Failed to detect cache line size; using fallback." exception = (err, catch_backtrace())
-    FallbackCacheLineSize
+const CACHE_LINE_SIZE = let size = try
+        _detect_cache_line_size()
+    catch err
+        @warn "Failed to detect cache line size; using fallback." exception = (err, catch_backtrace())
+        FallbackCacheLineSize
+    end
+    size > 0 ? size : FallbackCacheLineSize
 end
