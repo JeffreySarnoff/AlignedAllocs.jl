@@ -1,5 +1,3 @@
-using PrecompileTools
-
 const FallbackCacheLineSize = 64
 
 const _SC_LEVEL1_DCACHE_LINESIZE = 190  # defined in <unistd.h>
