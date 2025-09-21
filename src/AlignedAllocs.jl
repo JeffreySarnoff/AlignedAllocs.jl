@@ -53,7 +53,7 @@ end
 
     nbytes = Int(_nbytes(T, nitems))
     rawptr = Ref{Ptr{Cvoid}}(C_NULL)
-    ret = ccall((:posix_memalign, Libc.libcname), Cint,
+    ret = ccall((:posix_memalign), Cint,
                 (Ref{Ptr{Cvoid}}, Csize_t, Csize_t),
                 rawptr, Csize_t(align), Csize_t(nbytes))
     ret == 0 || alloc_error(ret)
@@ -61,7 +61,8 @@ end
     ptr = Ptr{T}(rawptr[])
     confirm_alignment(ptr, align)
 
-    return unsafe_wrap(Vector{T}, ptr, nitems; own=true)
+    vect = @GC.preserve unsafe_wrap(Vector{T}, ptr, nitems; own=true)
+    return vect
 end
 
 @inline function memalign_windows(::Type{T}, nitems::Integer, align::Integer) where T
