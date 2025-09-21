@@ -25,3 +25,5 @@ The following helpers are useful when extending the package to other platforms o
 - `zeromem(ptr::Ptr{UInt8}, nbytes::Int)`
 - `confirm_alignment(ptr::Ptr, align::Integer)`
 - `alloc_error(err)`
+
+Continue to the [Technical Notes](technical.md) for information on compatiblility and implementation internals.
