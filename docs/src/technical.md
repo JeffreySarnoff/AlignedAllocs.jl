@@ -19,26 +19,71 @@ CurrentModule = AlignedAllocs
 
   The best way is to allocate one aligned matrix with memalign_fixed specifying dimensions (4, length) and
   alignment 64, then extract the vectors as slices along one dimension.
-  
+
 ```julia
-  using AlignedAllocs, FixedSizeArrays
+using FixedSizeArrays
 
-  const ALIGN = 64                # byte boundary required
-  const LEN   = 16                # elements per vector (tweak as needed)
+  const ALIGN = 64          # byte alignment we need
+  const LEN   = 16          # elements per fixed vector
+  const COUNT = 4           # how many vectors
 
-  # single allocation that is 64-byte aligned
-  block = memalign_fixed(Float32, (LEN, 4); align = ALIGN)
+  # single 64-byte–aligned buffer large enough for all four vectors
+  storage = memalign(Float64, LEN * COUNT; align = ALIGN)
 
-  # take the contiguous column slices; each is a FixedSizeVector sharing the buffer
-  seq = FixedSizeArrays.slices(block; dims = 2)
+  vectors = GC.@preserve storage begin
+      baseptr = Base.unsafe_convert(Ptr{Float64}, storage)
+      ntuple(COUNT) do i
+          ptr   = baseptr + (i-1) * LEN * sizeof(Float64)
+          slice = Base.unsafe_wrap(Vector{Float64}, ptr, LEN; own = false)
+          FixedSizeArrays.new_fixed_size_array(slice, (LEN,))
+      end
+  end
 
-  @assert all(x -> alignment(x) >= ALIGN, seq)
+  # `vectors` is an NTuple of four FixedSizeVectors that share the aligned buffer.
+  # Keep `storage` in scope so the memory remains valid.
+  @assert all(vec -> alignment(vec) ≥ ALIGN, vectors)
 
-  # block is a (LEN × 4) fixed-size matrix whose parent buffer is 64‑byte aligned.
-  # FixedSizeArrays.slices (with dims = 2) exposes the four contiguous column vectors without extra allocations,
-  # so you get a sequence of four fixed-size vectors backed by the same aligned block. 
-  # Adjust LEN or the element type as required.
+  #  vectors now holds four contiguous, 64-byte-aligned FixedSizeVectors backed by the single aligned storage allocation.
 ```
+ How can I get 5 contiguous vectors of 4 Float32 values, each aligned to 128 bytes?
+
+ A single aligned buffer plus some padding between slices does the trick. 
+ - Each 4×Float32 vector consumes 16 bytes
+ - to keep every start address on a 128‑byte boundary
+    - we allow STRIDE = 128 ÷ sizeof(Float32) = 32 elements between them.
+```
+
+  using AlignedAllocs
+  using FixedSizeArrays
+
+  const ALIGN  = 128
+  const VLEN   = 4                 # elements per fixed vector
+  const COUNT  = 5                 # how many vectors
+  const STRIDE = ALIGN ÷ sizeof(Float32)  # elements between start addresses
+
+  storage = memalign(Float32, STRIDE * COUNT; align = ALIGN)
+
+  vectors = GC.@preserve storage begin
+      baseptr = Base.unsafe_convert(Ptr{Float32}, storage)
+      ntuple(COUNT) do i
+          ptr   = baseptr + (i-1) * STRIDE * sizeof(Float32)
+          chunk = Base.unsafe_wrap(Vector{Float32}, ptr, VLEN; own = false)
+          FixedSizeArrays.new_fixed_size_array(chunk, (VLEN,))
+      end
+  end
+
+  @assert all(v -> alignment(v) ≥ ALIGN, vectors)
+
+  vectors is an NTuple{5, FixedSizeVector{Float32}}, each sharing the same underlying buffer but starting 128 bytes
+  apart. Keep storage alive for as long as you use the fixed-size views.
+  ```
+  
+  Alternatively, use memalign_fixed to allocate a fixed-size matrix:
+  - block is a (LEN × 4) fixed-size matrix whose parent buffer is 64‑byte aligned.
+  - FixedSizeArray[:,1],..,FixedSizeArray[:,4] exposes the four contiguous column vectors without extra allocations,
+  - so you get a sequence of four fixed-size vectors backed by the same aligned block. 
+  - Adjust LEN or the element type as required.
+
 
 ## Interacting With External Code
 Keep a Julia reference alive while passing pointers to C:
