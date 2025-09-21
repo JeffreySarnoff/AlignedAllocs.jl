@@ -1,25 +1,17 @@
-import Pkg
-Pkg.activate(@__DIR__)
-Pkg.instantiate()
-
-using Documenter
-using AlignedAllocs
-
-DocMeta.setdocmeta!(AlignedAllocs, :DocTestSetup, :(using AlignedAllocs); recursive=true)
+using Documenter, AlignedAllocs
 
 makedocs(
-    sitename = "AlignedAllocs.jl",
     modules = [AlignedAllocs],
-    format = Documenter.HTML(),
+    sitename = "AlignedAllocss.jl",
+    authors = "Jeffrey Sarnoff",
     pages = [
         "Home" => "index.md",
         "User Guide" => "guide.md",
         "API Reference" => "reference.md",
-    ],
+    ]
 )
 
 deploydocs(
-    repo = "github.com/JeffreySarnoff/AlignedAllocs.jl",
-    devbranch = "main",
-    target = "build",
+    repo = "github.com/JeffreySarnoff/AlignedAllocs.jl.git",
+    target = "build"
 )
