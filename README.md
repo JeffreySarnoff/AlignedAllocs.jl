@@ -3,7 +3,7 @@
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://JeffreySarnoff.github.io/AlignedAllocs.jl/stable/)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://JeffreySarnoff.github.io/AlignedAllocs.jl/dev/)
 
-Deterministic aligned allocations for Julia. AlignedAllocs.jl wraps platform-specific primitives such as `posix_memalign` and `_aligned_malloc` in a small, type-stable API that returns owning `Vector`s with guaranteed byte alignment.
+#### All allocations use the new Memory infrastructure.
 
 ## Features
 - `memalign` and `memalign_clear` for allocating aligned Vector{T}, uninitialized or zeroed.
