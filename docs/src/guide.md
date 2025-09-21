@@ -92,10 +92,5 @@ end
 Aligned vectors behave like standard arrays. Resizing may reallocate and thus change the alignment. 
 Query `alignment(xs)` again when the exact boundary matters after operations such as `resize!`, `append!`, or `push!`.
 
-## Troubleshooting
-- `ArgumentError: Alignment ... must be 2^p where p >= 4` 
-    - use a power of two >= 16 (for example `32`, `64`, `128`).
-- `OutOfMemoryError` -> confirm the element count and consider chunked processing.
-- Zeroed buffer still shows stale data -> ensure the consumer reads from the returned vector, not a previously cached pointer.
 
 Continue to the [API Reference](reference.md) for function signatures and details.

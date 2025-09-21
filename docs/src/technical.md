@@ -13,7 +13,7 @@ CurrentModule = AlignedAllocs
 - insert!, deleteat!, keepat!, splice!, replace!
 - empty!, resize!
   
-#### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;copy(), deepcopy(), similar() do *not* preserve alignment
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **copy(), deepcopy(), similar() do *not* preserve alignment**
 
 ----
 
@@ -64,8 +64,8 @@ using FixedSizeArrays
  - Each 4×Float32 vector consumes 16 bytes
  - to keep every start address on a 128‑byte boundary
     - we allow STRIDE = 128 ÷ sizeof(Float32) = 32 elements between them.
-```
 
+```julia
   using AlignedAllocs
   using FixedSizeArrays
 
@@ -86,8 +86,10 @@ using FixedSizeArrays
   end
 
   @assert all(v -> alignment(v) ≥ ALIGN, vectors)
+```
 
-  vectors is an NTuple{5, FixedSizeVector{Float32}}, each sharing the same underlying buffer but starting 128 bytes
-  apart. Keep storage alive for as long as you use the fixed-size views.
-  ```
+Above, vectors is an NTuple{5, FixedSizeVector{Float32}}.
+- each one shares the same underlying buffer
+- each one starting 128 bytes apart
+- Keep storage alive for as long as you use the fixed-size views.
   
