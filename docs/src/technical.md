@@ -13,7 +13,7 @@ CurrentModule = AlignedAllocs
 - insert!, deleteat!, keepat!, splice!, replace!
 - empty!, resize!
   
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **copy(), deepcopy(), similar() do *not* preserve alignment**
+**copy(), deepcopy(), similar() do *not* preserve alignment**
 
 ----
 
