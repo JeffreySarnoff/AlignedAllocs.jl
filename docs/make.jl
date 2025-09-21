@@ -9,7 +9,6 @@ DocMeta.setdocmeta!(AlignedAllocs, :DocTestSetup, :(using AlignedAllocs); recurs
 
 makedocs(
     sitename = "AlignedAllocs.jl",
-    author = "Jeffrey Sarnoff",
     modules = [AlignedAllocs],
     format = Documenter.HTML(),
     strict = true,
