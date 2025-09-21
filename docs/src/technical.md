@@ -21,7 +21,7 @@ CurrentModule = AlignedAllocs
 
 ### when the sequence of vectors fills the memory space
 
-use memalign_clear_fixed to allocate a fixed-size matrix:
+use memalign\_clear\_fixed to allocate a fixed-size matrix:
   - block is a (LEN × 4) fixed-size matrix whose parent buffer is 64‑byte aligned.
   - FixedSizeArray[:,1],..,FixedSizeArray[:,4] exposes the four contiguous column vectors without extra allocations,
   - so you get a sequence of four fixed-size vectors backed by the same aligned block. 
