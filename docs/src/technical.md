@@ -13,9 +13,22 @@ CurrentModule = AlignedAllocs
 - insert!, deleteat!, keepat!, splice!, replace!
 - empty!, resize!
   
-#### *copy, deepcopy, similar do not preserve alignment*
+#### &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;copy(), deepcopy(), similar() do *not* preserve alignment
+
+----
 
 ## Mulitsequential Aligned Vectors
+
+### when the sequence of vectors fills the memory space
+
+use memalign_clear_fixed to allocate a fixed-size matrix:
+  - block is a (LEN × 4) fixed-size matrix whose parent buffer is 64‑byte aligned.
+  - FixedSizeArray[:,1],..,FixedSizeArray[:,4] exposes the four contiguous column vectors without extra allocations,
+  - so you get a sequence of four fixed-size vectors backed by the same aligned block. 
+  - Adjust LEN or the element type as required.
+
+
+### when the sequence of vectors partially fill the memory space
 
   The best way is to allocate one aligned matrix with memalign_fixed specifying dimensions (4, length) and
   alignment 64, then extract the vectors as slices along one dimension.
@@ -78,9 +91,3 @@ using FixedSizeArrays
   apart. Keep storage alive for as long as you use the fixed-size views.
   ```
   
-  Alternatively, use memalign_fixed to allocate a fixed-size matrix:
-  - block is a (LEN × 4) fixed-size matrix whose parent buffer is 64‑byte aligned.
-  - FixedSizeArray[:,1],..,FixedSizeArray[:,4] exposes the four contiguous column vectors without extra allocations,
-  - so you get a sequence of four fixed-size vectors backed by the same aligned block. 
-  - Adjust LEN or the element type as required.
-
