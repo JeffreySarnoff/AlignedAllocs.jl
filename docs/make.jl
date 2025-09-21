@@ -11,7 +11,6 @@ makedocs(
     sitename = "AlignedAllocs.jl",
     modules = [AlignedAllocs],
     format = Documenter.HTML(),
-    strict = true,
     pages = [
         "Home" => "index.md",
         "User Guide" => "guide.md",
