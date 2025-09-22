@@ -15,7 +15,6 @@ ys = memalign_clear(Int32, 64; align=256)
 typeof(ys) # Vector{Int32}
 # confirm that the memory is aligned as requested
 alignment(ys) >= 256
-```
 # 64 Int32s, zeroed, aligned to at least a 256 byte boundary
 ```
 ```julia
