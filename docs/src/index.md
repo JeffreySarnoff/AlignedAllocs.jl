@@ -6,10 +6,16 @@ CurrentModule = AlignedAllocs
 
 #### All allocations use the new Memory infrastructure.
 
-AlignedAllocs.jl provides fast, cache aware allocations for Julia vectors that benefit from predetermined alignment. The package wraps platform specific memory allocation primitives in a small, type stable API. The allocated memory is of built-in type Vector{T} where T is the type passed to the allocation function.
 
 
-## Highlights of the new AlignedAllocs.jl
+AlignedAllocs.jl provides fast, cache alignment aware allocations for Julia vectors, matrices, arrays.
+- both {Vector, Matrix, nD Array}{T} and FixedLength{Vector, Matrix, nD Array}{T} are supported.
+ 
+- The package wraps platform specific memory allocation primitives in a small, type stable API.
+
+
+## What AlignedAllocs.jl brings
+
 
 #### Julia's Memory type (MemoryRef) is now a cornerstone feature of AlignedAllocs
 
@@ -33,15 +39,7 @@ AlignedAllocs.jl provides fast, cache aware allocations for Julia vectors that b
     - less than or equal to the alignment of the vector's start
     - if the constituent is larger than the alignment, the alignment is increased
 
-
-```@contents
-Pages = [
-    "guide.md",
-    "reference.md",
-    "technical.md",
-]
-Depth = 1
-```
+----
 
 ## Getting Started
 ```julia
