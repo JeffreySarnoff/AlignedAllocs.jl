@@ -19,16 +19,14 @@ AlignedAllocs.jl provides fast, cache alignment aware allocations for Julia vect
 
 #### Julia's Memory type (MemoryRef) is now a cornerstone feature of AlignedAllocs
 
-- Aligned memory obtains
-  - backing a Vector{T}
-    -  or a Matrix{T} or a Array{T,N}
-  - backing a FixedLengthVector{T}
-    -  or a FixedLengthMatrix{T} or a FixedSizeArray{T,N}
+- Aligned memory is provided
+  - backing a Vector{T} or an Array{T,N}
+  - backing a FixedSizeVector{T} or a FixedSizeArray{T,N}
   
 - Aligned memory is obtained
   - either uninitialized or zeroed
-  - without offseting
-  - without copying
+  - without offsets into another memory object
+  - without copying from another memory source
   
 - System local cache line size is determined during precompilation
   - this becomes the default alignment
