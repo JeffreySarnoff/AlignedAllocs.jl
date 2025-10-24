@@ -5,6 +5,7 @@ export memalign, memalign_clear, memalign_fixed, memalign_clear_fixed, memalign_
 using Base: Libc
 using PrecompileTools
 
+include("FixedAlignedAllocs.jl")
 include("precompilation.jl")
 
 if !(@isdefined CACHE_LINE_SIZE)
@@ -17,8 +18,6 @@ end
 
 const ENOMEM = Cint(12)
 const EINVAL = Cint(22)
-
-include("FixedAlignedAllocs.jl")
 
 @inline function _normalize_dims(dims::Tuple{Vararg{Integer,N}}) where {N}
     N == 0 && throw(ArgumentError("at least one dimension is required"))
