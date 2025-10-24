@@ -1,7 +1,7 @@
 name = "AlignedAllocs"
 uuid = "6ac60441-711f-43f0-8178-7f71f0888134"
 author = "Jeffrey Sarnoff <jeffrey.sarnoff@gmail.com>"
-version = "0.2.0"
+version = "0.3.0"
 
 [deps]
 FixedSizeArrays = "3821ddf9-e5b5-40d5-8e25-6813ab96b5e2"
