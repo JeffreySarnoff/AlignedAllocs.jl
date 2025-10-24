@@ -1,7 +1,7 @@
 module AlignedAllocs
 
 export memalign, memalign_clear, memalign_fixed, memalign_clear_fixed, memalign_vectors,
-       memaligned, memaligned_clear, alignment, FixedAlignedAllocs
+       memaligs, memaligns_clear, alignment
 
 using Base: Libc
 using PrecompileTools
@@ -18,6 +18,8 @@ end
 
 const ENOMEM = Cint(12)
 const EINVAL = Cint(22)
+
+include("FixedAlignedAllocs.jl")
 
 @inline function _normalize_dims(dims::Tuple{Vararg{Integer,N}}) where {N}
     N == 0 && throw(ArgumentError("at least one dimension is required"))
@@ -80,32 +82,30 @@ Allocate aligned storage for `nitems` elements of type `T`, zero-initialize it, 
     return vect
 end
 
-
 """
-    memaligned(::Type{T}, dims...; align=CACHE_LINE_SIZE) where T
+    memaligns(::Type{T}, dims...; align=CACHE_LINE_SIZE) where T
 
 Allocate aligned storage for a multi-dimensional array with element type `T`.
 The return value shares storage with a vector allocated via [`memalign`] and
 is reshaped to match `dims`.
 """
-@inline function memaligned(::Type{T}, dims::Vararg{Integer,N}; align::Integer=CACHE_LINE_SIZE) where {T,N}
+@inline function memaligns(::Type{T}, dims::Vararg{Integer,N}; align::Integer=CACHE_LINE_SIZE) where {T,N}
     _aligned_construct(T, tuple(dims...), align, memalign, _reshape_aligned)
 end
-@inline function memaligned(::Type{T}, dims::Tuple{Vararg{Integer,N}}; align::Integer=CACHE_LINE_SIZE) where {T,N}
+@inline function memaligns(::Type{T}, dims::Tuple{Vararg{Integer,N}}; align::Integer=CACHE_LINE_SIZE) where {T,N}
     _aligned_construct(T, dims, align, memalign, _reshape_aligned)
 end
 
-
 """
-    memaligned_clear(::Type{T}, dims...; align=CACHE_LINE_SIZE) where T
+    memaligns_clear(::Type{T}, dims...; align=CACHE_LINE_SIZE) where T
 
 Allocate aligned storage for a multi-dimensional array and zero-initialise the
 contents before reshaping to `dims`.
 """
-@inline function memaligned_clear(::Type{T}, dims::Vararg{Integer,N}; align::Integer=CACHE_LINE_SIZE) where {T,N}
+@inline function memaligns_clear(::Type{T}, dims::Vararg{Integer,N}; align::Integer=CACHE_LINE_SIZE) where {T,N}
     _aligned_construct(T, tuple(dims...), align, memalign_clear, _reshape_aligned)
 end
-@inline function memaligned_clear(::Type{T}, dims::Tuple{Vararg{Integer,N}}; align::Integer=CACHE_LINE_SIZE) where {T,N}
+@inline function memaligns_clear(::Type{T}, dims::Tuple{Vararg{Integer,N}}; align::Integer=CACHE_LINE_SIZE) where {T,N}
     _aligned_construct(T, dims, align, memalign_clear, _reshape_aligned)
 end
 
