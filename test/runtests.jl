@@ -2,10 +2,10 @@ using Test
 using AlignedAllocs
 using FixedSizeArrays
 
-const TEST_ALIGNMENT = 64
+const TEST_ALIGNMENT = 256
 
-@testset "memalign returns aligned storage" begin
-    vect = memalign(Float64, 32; align =TEST_ALIGNMENT)
+@testset "memalign_vec returns aligned storage" begin
+    vect = memalign_vec(Float64, 32; align =TEST_ALIGNMENT)
     @test length(vect) == 32
     addr = UInt(pointer(vect))
     @test addr % TEST_ALIGNMENT == 0
@@ -14,8 +14,8 @@ const TEST_ALIGNMENT = 64
     @test all(vect .== 3.25)
 end
 
-@testset "memalign_clear zero-initializes" begin
-    vect = memalign_clear(UInt16, 48; align = TEST_ALIGNMENT)
+@testset "memalign_clear_vec zero-initializes" begin
+    vect = memalign_clear_vec(UInt16, 48; align = TEST_ALIGNMENT)
     @test length(vect) == 48
     @test all(iszero, vect)
     addr = UInt(pointer(vect))
@@ -23,7 +23,7 @@ end
 end
 
 @testset "Default alignment uses cache line" begin
-    vect = memalign(UInt8, 128)
+    vect = memalign_fix(UInt8, 128)
     expected = max(AlignedAllocs.CACHE_LINE_SIZE, 16)
     addr = UInt(pointer(vect))
     @test addr % expected == 0
@@ -31,12 +31,33 @@ end
 end
 
 @testset "Argument validation" begin
-    @test_throws ArgumentError memalign(UInt64, 0; align = TEST_ALIGNMENT)
-    @test_throws ArgumentError memalign(UInt64, -5; align = TEST_ALIGNMENT)
-    @test_throws ArgumentError memalign(UInt64, 8; align = 24)
-    @test_throws ArgumentError memalign(UInt64, 8; align = 8)
-    @test_throws ArgumentError memalign(String, 4; align = TEST_ALIGNMENT)
-    @test_throws OverflowError memalign(Float64, typemax(Int); align = TEST_ALIGNMENT)
+    @test_throws ArgumentError memalign_vec(UInt64, 0; align = TEST_ALIGNMENT)
+    @test_throws ArgumentError memalign_vec(UInt64, -5; align = TEST_ALIGNMENT)
+    @test_throws ArgumentError memalign_vec(UInt64, 8; align = 24)
+    @test_throws ArgumentError memalign_vec(UInt64, 8; align = 8)
+    @test_throws ArgumentError memalign_vec(String, 4; align = TEST_ALIGNMENT)
+    @test_throws OverflowError memalign_vec(Float64, typemax(Int); align = TEST_ALIGNMENT)
+    
+    @test_throws ArgumentError memalign_clear_vec(UInt64, 0; align = TEST_ALIGNMENT)
+    @test_throws ArgumentError memalign_clear_vec(UInt64, -5; align = TEST_ALIGNMENT)
+    @test_throws ArgumentError memalign_clear_vec(UInt64, 8; align = 24)
+    @test_throws ArgumentError memalign_clear_vec(UInt64, 8; align = 8)
+    @test_throws ArgumentError memalign_clear_vec(String, 4; align = TEST_ALIGNMENT)
+    @test_throws OverflowError memalign_clear_vec(Float64, typemax(Int); align = TEST_ALIGNMENT)
+
+    @test_throws ArgumentError memalign_fix(UInt64, 0; align = TEST_ALIGNMENT)
+    @test_throws ArgumentError memalign_fix(UInt64, -5; align = TEST_ALIGNMENT)
+    @test_throws ArgumentError memalign_fix(UInt64, 8; align = 24)
+    @test_throws ArgumentError memalign_fix(UInt64, 8; align = 8)
+    @test_throws ArgumentError memalign_fix(String, 4; align = TEST_ALIGNMENT)
+    @test_throws OverflowError memalign_fix(Float64, typemax(Int); align = TEST_ALIGNMENT)
+    
+    @test_throws ArgumentError memalign_clear_fix(UInt64, 0; align = TEST_ALIGNMENT)
+    @test_throws ArgumentError memalign_clear_fix(UInt64, -5; align = TEST_ALIGNMENT)
+    @test_throws ArgumentError memalign_clear_fix(UInt64, 8; align = 24)
+    @test_throws ArgumentError memalign_clear_fix(UInt64, 8; align = 8)
+    @test_throws ArgumentError memalign_clear_fix(String, 4; align = TEST_ALIGNMENT)
+    @test_throws OverflowError memalign_clear_fix(Float64, typemax(Int); align = TEST_ALIGNMENT)
 end
 
 @testset "alignment helper" begin
@@ -46,7 +67,6 @@ end
     @test Base.ispow2(value)
     @test UInt(pointer(base)) % value == 0
 end
-
 
 @testset "Helper predicates" begin
     @test AlignedAllocs.is_alignment_valid(16)
@@ -82,7 +102,14 @@ end
 
 @testset "Large alignments" begin
     align = 512
-    vect = memalign(UInt64, 4; align)
+    vect = memalign_vec(UInt64, 4; align)
+    @test length(vect) == 4
+    addr = UInt(pointer(vect))
+    @test addr % align == 0
+    @test alignment(vect) >= align
+
+    align = 512
+    vect = memalign_clear_fix(UInt64, 4; align)
     @test length(vect) == 4
     addr = UInt(pointer(vect))
     @test addr % align == 0
@@ -90,7 +117,7 @@ end
 end
 
 @testset "Multi-dimensional aligned allocations" begin
-    arr = memaligned(UInt16, 4, 8; align = TEST_ALIGNMENT)
+    arr = memalign_seq(UInt16, 4, 8; align = TEST_ALIGNMENT)
     @test size(arr) == (4, 8)
     @test eltype(arr) == UInt16
     @test alignment(arr) >= TEST_ALIGNMENT
@@ -99,12 +126,12 @@ end
     flat = vec(arr)
     @test all(==(UInt16(5)), flat)
 
-    cleared = memaligned_clear(Float32, (2, 3, 4))
+    cleared = memalign_seq_clear(Float32, (2, 3, 4))
     @test size(cleared) == (2, 3, 4)
     @test all(iszero, cleared)
 
-    @test_throws ArgumentError memaligned(Float32, 4, 0)
-    @test_throws OverflowError memaligned(UInt8, typemax(Int), 2)
+    @test_throws ArgumentError memalign_seq(Float32, 4, 0)
+    @test_throws OverflowError memalign_clear_seq(UInt8, typemax(Int), 2)
 end
 
 @testset "Alignment on empty arrays" begin
@@ -114,9 +141,8 @@ end
     @test Base.ispow2(value) || value == 0
 end
 
-
 @testset "Fixed-size aligned allocations" begin
-    fs = memalign_fixed(Float64, 4, 4; align = TEST_ALIGNMENT)
+    fs = memalign_fix(Float64, 4, 4; align = TEST_ALIGNMENT)
     @test fs isa FixedSizeArrays.FixedSizeMatrix{Float64}
     @test size(fs) == (4, 4)
     @test alignment(fs) >= TEST_ALIGNMENT
@@ -126,7 +152,7 @@ end
     parent_vec .= 1.25
     @test all(fs .== 1.25)
 
-    cleared = memalign_clear_fixed(UInt8, 8; align = TEST_ALIGNMENT)
+    cleared = memalign_clear_fix(UInt8, 8; align = TEST_ALIGNMENT)
     @test cleared isa FixedSizeArrays.FixedSizeVector{UInt8}
     @test all(iszero, cleared)
 
