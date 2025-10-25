@@ -17,6 +17,10 @@ underlying dense storage.
     _fixed_aligned(T, dims, align, memalign)
 end
 
+@inline function memalign_fix(::Type{T}, n::Integer; align::Integer=DEFAULT_FIXED_ALIGNMENT) where {T}
+    _fixed_aligned(T, (n,), align, memalign)
+end
+
 """
     memalign_clear_fix(::Type{T}, dims...; align=CACHE_LINE_SIZE) where T
 
@@ -49,34 +53,7 @@ function memalign_seq(::Type{T}, nvectors, nitems_per_vector; align=CACHE_LINE_S
     vectors
 end
 
-#=
-
-"""
-    memaligns(::Type{T}, dims...; align=CACHE_LINE_SIZE) where T
-
-Allocate aligned storage for a multi-dimensional array with element type `T`.
-The return value shares storage with a vector allocated via [`memalign`] and
-is reshaped to match `dims`.
-"""
-@inline function memaligns(::Type{T}, dims::Vararg{Integer,N}; align::Integer=CACHE_LINE_SIZE) where {T,N}
-    _aligned_construct(T, tuple(dims...), align, memalign, _reshape_aligned)
-end
-@inline function memaligns(::Type{T}, dims::Tuple{Vararg{Integer,N}}; align::Integer=CACHE_LINE_SIZE) where {T,N}
-    _aligned_construct(T, dims, align, memalign, _reshape_aligned)
-end
-
-"""
-    memaligns_clear(::Type{T}, dims...; align=CACHE_LINE_SIZE) where T
-
-Allocate aligned storage for a multi-dimensional array and zero-initialise the
-contents before reshaping to `dims`.
-"""
-@inline function memaligns_clear(::Type{T}, dims::Vararg{Integer,N}; align::Integer=CACHE_LINE_SIZE) where {T,N}
-    _aligned_construct(T, tuple(dims...), align, memalign_clear, _reshape_aligned)
-end
-@inline function memaligns_clear(::Type{T}, dims::Tuple{Vararg{Integer,N}}; align::Integer=CACHE_LINE_SIZE) where {T,N}
-    _aligned_construct(T, dims, align, memalign_clear, _reshape_aligned)
-end
+# lower level support
 
 @inline function _normalize_dims(dims::Tuple{Vararg{Integer,N}}) where {N}
     N == 0 && throw(ArgumentError("at least one dimension is required"))
@@ -105,6 +82,36 @@ end
     len = _checked_length(sdims)
     buffer = allocator(T, len; align=align)
     return builder(buffer, sdims)
+end
+
+
+#=
+
+"""
+    memaligns(::Type{T}, dims...; align=CACHE_LINE_SIZE) where T
+
+Allocate aligned storage for a multi-dimensional array with element type `T`.
+The return value shares storage with a vector allocated via [`memalign`] and
+is reshaped to match `dims`.
+"""
+@inline function memaligns(::Type{T}, dims::Vararg{Integer,N}; align::Integer=CACHE_LINE_SIZE) where {T,N}
+    _aligned_construct(T, tuple(dims...), align, memalign, _reshape_aligned)
+end
+@inline function memaligns(::Type{T}, dims::Tuple{Vararg{Integer,N}}; align::Integer=CACHE_LINE_SIZE) where {T,N}
+    _aligned_construct(T, dims, align, memalign, _reshape_aligned)
+end
+
+"""
+    memaligns_clear(::Type{T}, dims...; align=CACHE_LINE_SIZE) where T
+
+Allocate aligned storage for a multi-dimensional array and zero-initialise the
+contents before reshaping to `dims`.
+"""
+@inline function memaligns_clear(::Type{T}, dims::Vararg{Integer,N}; align::Integer=CACHE_LINE_SIZE) where {T,N}
+    _aligned_construct(T, tuple(dims...), align, memalign_clear, _reshape_aligned)
+end
+@inline function memaligns_clear(::Type{T}, dims::Tuple{Vararg{Integer,N}}; align::Integer=CACHE_LINE_SIZE) where {T,N}
+    _aligned_construct(T, dims, align, memalign_clear, _reshape_aligned)
 end
 
 =#
