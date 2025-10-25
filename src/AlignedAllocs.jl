@@ -34,8 +34,8 @@ Allocate aligned storage for `nitems` elements of type `T` and return a `Vector{
     @static Sys.iswindows() ? memalign_windows(T, nitems, align) : memalign_posix(T, nitems, align)
 end
 
-@inline function memalign(::Type{T}, nitems::Integer; align::Integer=CACHE_LINE_SIZE) where T = 
-                 memalign_vec(T, nitems; align)
+@inline memalign(::Type{T}, nitems::Integer; align::Integer=CACHE_LINE_SIZE) where T =
+    memalign_vec(T, nitems; align)
 
 """
     memalign_clear_vec(::Type{T}, nitems::Integer, align::Integer=CACHE_LINE_SIZE) where T
@@ -53,8 +53,8 @@ Allocate aligned storage for `nitems` elements of type `T`, zero-initialize it, 
     return vect
 end
 
-@inline function memalign_clear(::Type{T}, nitems::Integer; align::Integer=CACHE_LINE_SIZE) where T = 
-                 memalign_clear_vec(T, nitems; align)
+@inline memalign_clear(::Type{T}, nitems::Integer; align::Integer=CACHE_LINE_SIZE) where T = 
+    memalign_clear_vec(T, nitems; align)
 
 @inline function memalign_posix(::Type{T}, nitems::Integer, align::Integer) where T
     check_args(T, nitems, align)
