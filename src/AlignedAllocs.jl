@@ -198,8 +198,8 @@ Empty arrays return `0` because they do not own storage.
     return addr == 0 ? 0 : Int(addr & -addr)
 end
 
-include("FixedAlignedAllocs.jl")
-
-const FixedAlignedAllocs = (; memalign_fixed, memalign_clear_fixed, alignment)
+@inline function alignment(xs::NTuple{N,T}) where {N,T}
+    minimum(map(alignment, xs))
+end
 
 end  # AlignedAllocs
