@@ -13,9 +13,6 @@ Allocate aligned storage for a `FixedSizeArray` of element type `T` with shape `
 The returned array uses `memalign` and preserves the alignment guarantee for the
 underlying dense storage.
 """
-@inline function memalign_fix(::Type{T}, dims::Vararg{Integer,N}; align::Integer=DEFAULT_FIXED_ALIGNMENT) where {T,N}
-    memalign_fixed(T, tuple(dims...); align=align)
-end
 @inline function memalign_fix(::Type{T}, dims::Tuple{Vararg{Integer,N}}; align::Integer=DEFAULT_FIXED_ALIGNMENT) where {T,N}
     _fixed_aligned(T, dims, align, memalign)
 end
@@ -26,9 +23,6 @@ end
 Allocate aligned storage for a `FixedSizeArray` of element type `T` with shape `dims`
 and initialize all entries to zero.
 """
-@inline function memalign_clear_fix(::Type{T}, dims::Vararg{Integer,N}; align::Integer=DEFAULT_FIXED_ALIGNMENT) where {T,N}
-    memalign_clear_fixed(T, tuple(dims...); align=align)
-end
 @inline function memalign_clear_fix(::Type{T}, dims::Tuple{Vararg{Integer,N}}; align::Integer=DEFAULT_FIXED_ALIGNMENT) where {T,N}
     _fixed_aligned(T, dims, align, memalign_clear)
 end
