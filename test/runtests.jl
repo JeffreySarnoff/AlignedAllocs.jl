@@ -2,7 +2,7 @@ using Test
 using AlignedAllocs
 using FixedSizeArrays
 
-const TEST_ALIGNMENT = 256
+const TEST_ALIGNMENT = 64
 
 @testset "memalign_vec returns aligned storage" begin
     vect = memalign_vec(Float64, 32; align =TEST_ALIGNMENT)
