@@ -83,19 +83,17 @@ end
     buffer = allocator(T, len; align=align)
     return builder(buffer, sdims)
 end
-
-
+#=
 # Generic aligned allocation constructor with function barrier.
-@inline function _aligned_construct(::Type{T}, dims::Tuple{Vararg{Integer,N}}, 
-                                   align::Integer, allocator::F, builder::G) where {T,N,F,G}
+@inline function _aligned_construct(::Type{T}, dims::Tuple{Vararg{Integer,N}},  align::Integer, allocator::F, builder::G) where {T,N,F,G}
     # Function barrier: separate validation from allocation
     sdims = _normalize_dims(dims)
     len = _checked_length(sdims)
-    
     # Type-stable allocation
     buffer = allocator(T, len; align=Int(align))
     return builder(buffer, sdims)
 end
+=#
 
 #=
 
