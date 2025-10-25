@@ -126,7 +126,7 @@ end
     flat = vec(arr)
     @test all(==(UInt16(5)), flat)
 
-    cleared = memalign_seq_clear(Float32, (2, 3, 4))
+    cleared = memalign_clear_seq(Float32, (2, 3, 4))
     @test size(cleared) == (2, 3, 4)
     @test all(iszero, cleared)
 
