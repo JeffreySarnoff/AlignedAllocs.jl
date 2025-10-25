@@ -29,6 +29,10 @@ and initialize all entries to zero.
     _fixed_aligned(T, dims, align, memalign_clear)
 end
 
+@inline function memalign_clear_fix(::Type{T}, n::Integer; align::Integer=CACHE_LINE_SIZE) where {T}
+    _fixed_aligned(T, (n,), align, memalign_clear)
+end
+
 """
     memalign_seq(::Type{T}, nvectors, nitems_per_vector; align=CACHE_LINE_SIZE) where T
 
