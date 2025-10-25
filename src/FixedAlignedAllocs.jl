@@ -1,7 +1,5 @@
 using FixedSizeArrays
 
-const DEFAULT_FIXED_ALIGNMENT = CACHE_LINE_SIZE
-
 @inline function _fixed_aligned(::Type{T}, dims::Tuple{Vararg{Integer,N}}, align::Integer, allocator) where {T,N}
     _aligned_construct(T, dims, align, allocator, FixedSizeArrays.new_fixed_size_array)
 end
@@ -13,11 +11,11 @@ Allocate aligned storage for a `FixedSizeArray` of element type `T` with shape `
 The returned array uses `memalign` and preserves the alignment guarantee for the
 underlying dense storage.
 """
-@inline function memalign_fix(::Type{T}, dims::Tuple{Vararg{Integer,N}}; align::Integer=DEFAULT_FIXED_ALIGNMENT) where {T,N}
+@inline function memalign_fix(::Type{T}, dims::Tuple{Vararg{Integer,N}}; align::Integer=CACHE_LINE_SIZE) where {T,N}
     _fixed_aligned(T, dims, align, memalign)
 end
 
-@inline function memalign_fix(::Type{T}, n::Integer; align::Integer=DEFAULT_FIXED_ALIGNMENT) where {T}
+@inline function memalign_fix(::Type{T}, n::Integer; align::Integer=CACHE_LINE_SIZE) where {T}
     _fixed_aligned(T, (n,), align, memalign)
 end
 
@@ -27,7 +25,7 @@ end
 Allocate aligned storage for a `FixedSizeArray` of element type `T` with shape `dims`
 and initialize all entries to zero.
 """
-@inline function memalign_clear_fix(::Type{T}, dims::Tuple{Vararg{Integer,N}}; align::Integer=DEFAULT_FIXED_ALIGNMENT) where {T,N}
+@inline function memalign_clear_fix(::Type{T}, dims::Tuple{Vararg{Integer,N}}; align::Integer=CACHE_LINE_SIZE) where {T,N}
     _fixed_aligned(T, dims, align, memalign_clear)
 end
 
@@ -83,19 +81,17 @@ end
     buffer = allocator(T, len; align=align)
     return builder(buffer, sdims)
 end
-
-
+#=
 # Generic aligned allocation constructor with function barrier.
-@inline function _aligned_construct(::Type{T}, dims::Tuple{Vararg{Integer,N}}, 
-                                   align::Integer, allocator::F, builder::G) where {T,N,F,G}
+@inline function _aligned_construct(::Type{T}, dims::Tuple{Vararg{Integer,N}},  align::Integer, allocator::F, builder::G) where {T,N,F,G}
     # Function barrier: separate validation from allocation
     sdims = _normalize_dims(dims)
     len = _checked_length(sdims)
-    
     # Type-stable allocation
     buffer = allocator(T, len; align=Int(align))
     return builder(buffer, sdims)
 end
+=#
 
 #=
 
