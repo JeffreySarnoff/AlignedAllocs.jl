@@ -43,7 +43,7 @@ Allocate `nvectors` fixed-size vectors of type `T`, each with `nitems_per_vector
 """
 function memalign_seq(::Type{T}, nvectors, nitems_per_vector; align=CACHE_LINE_SIZE) where {T}
     stride = align ÷ sizeof(T)  # elements between start addresses
-    storage = memalign_clear_fixed(T, stride * nvectors; align)
+    storage = memalign_clear_fix(T, stride * nvectors; align)
     vectors = GC.@preserve storage begin
         baseptr = Base.unsafe_convert(Ptr{T}, storage)
         ntuple(nvectors) do i
