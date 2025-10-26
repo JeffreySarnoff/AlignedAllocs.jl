@@ -1,0 +1,8 @@
+name = "AlignedAllocsDocs"
+uuid = "5c735f0f-1cde-4a62-9e5f-4dcf3a9b5f71"
+authors = [""]
+version = "0.3.0"
+
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+FixedSizeArrays = "53d20848-f143-11e8-053f-91709c0e13ae"
